@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marmitaria Popular CG - Espetos e Marmitas</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 font-sans min-h-screen">
+
+    <!-- HEADER / NAVBAR -->
+    <header class="bg-red-700 text-white shadow-md p-4 sticky top-0 z-50 flex justify-between items-center">
+        <div>
+            <h1 class="text-xl font-bold"><i class="fa-solid fa-utensils mr-2"></i>Marmitaria Popular CG</h1>
+            <p class="text-xs text-red-200">Espetos e Marmitas</p>
+        </div>
+        <button id="nav-toggle-btn" onclick="toggleView()" class="bg-red-900 hover:bg-red-800 text-white text-xs px-3 py-2 rounded-lg border border-red-500 transition">
+            <i class="fa-solid fa-lock mr-1"></i> Painel ADM
+        </button>
+    </header>
+
+    <!-- ÁREA DO CLIENTE -->
+    <main id="client-view" class="max-w-2xl mx-auto p-4 space-y-6">
+        
+        <!-- Status de Acompanhamento (caso exista pedido ativo) -->
+        <div id="tracking-card" class="hidden bg-white p-4 rounded-xl shadow-lg border-2 border-green-500 space-y-2">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-gray-800"><i class="fa-solid fa-truck-fast text-green-600 mr-2"></i>Status do seu Pedido</h3>
+                <span id="tracking-status-badge" class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-bold">Pendente</span>
+            </div>
+            <p class="text-sm text-gray-600" id="tracking-info">Carregando informações...</p>
+            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                <div id="tracking-progress" class="bg-green-600 h-2.5 rounded-full" style="width: 25%"></div>
+            </div>
+        </div>
+
+        <!-- Passo 1: Escolha do Tamanho da Marmita -->
+        <section class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+            <h2 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2"><span class="bg-red-700 text-white rounded-full px-2 py-0.5 text-xs mr-2">1</span> Escolha o Tamanho da Marmita</h2>
+            <div id="marmita-sizes-list" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <!-- Inserido dinamicamente via JS -->
+            </div>
+        </section>
+
+        <!-- Passo 2: Acompanhamentos da Marmita -->
+        <section class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+            <h2 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2"><span class="bg-red-700 text-white rounded-full px-2 py-0.5 text-xs mr-2">2</span> Monte sua Marmita</h2>
+            <div id="marmita-items-list" class="space-y-2">
+                <!-- Inserido dinamicamente via JS -->
+            </div>
+        </section>
+
+        <!-- Passo 3: Espetos -->
+        <section class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+            <h2 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2"><i class="fa-solid fa-drumstick-bite text-red-700 mr-2"></i>Espetinhos</h2>
+            <div id="espetos-list" class="space-y-2">
+                <!-- Inserido dinamicamente via JS -->
+            </div>
+        </section>
+
+        <!-- Passo 4: Bebidas e Sobremesas -->
+        <section class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+            <h2 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2"><i class="fa-solid fa-bottle-water text-red-700 mr-2"></i>Bebidas e Sobremesas</h2>
+            <div id="extras-list" class="space-y-2">
+                <!-- Inserido dinamicamente via JS -->
+            </div>
+        </section>
+
+        <!-- Passo 5: Dados de Entrega e Opções -->
+        <section class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 space-y-4">
+            <h2 class="text-lg font-bold text-gray-800 border-b pb-2"><i class="fa-solid fa-location-dot text-red-700 mr-2"></i>Dados da Entrega</h2>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Seu Nome</label>
+                <input type="text" id="cust-name" class="w-full border p-2 rounded-lg mt-1" placeholder="Ex: João Silva">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Telefone / WhatsApp</label>
+                <input type="text" id="cust-phone" class="w-full border p-2 rounded-lg mt-1" placeholder="(83) 98888-8888">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Endereço de Entrega</label>
+                <textarea id="cust-address" class="w-full border p-2 rounded-lg mt-1" rows="2" placeholder="Rua, Número, Bairro e Ponto de Referência"></textarea>
+            </div>
+            <div class="flex items-center">
+                <input type="checkbox" id="cust-disposable" class="w-4 h-4 text-red-600 rounded border-gray-300">
+                <label for="cust-disposable" class="ml-2 text-sm text-gray-700 font-medium">Deseja talheres descartáveis?</label>
+            </div>
+        </section>
+
+        <!-- Total e Botão de Finalizar -->
+        <div class="bg-white p-4 rounded-xl shadow-lg border border-gray-200 sticky bottom-4 flex justify-between items-center">
+            <div>
+                <p class="text-xs text-gray-500">Total do Pedido</p>
+                <p id="order-total" class="text-2xl font-black text-red-700">R$ 0,00</p>
+            </div>
+            <button onclick="submitOrder()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-xl shadow transition">
+                Finalizar Pedido <i class="fa-solid fa-paper-plane ml-1"></i>
+            </button>
+        </div>
+    </main>
+
+    <!-- PAINEL DE ADMINISTRAÇÃO -->
+    <main id="admin-view" class="hidden max-w-6xl mx-auto p-4 space-y-6">
+        
+        <!-- Tela de Login -->
+        <div id="admin-login-card" class="max-w-md mx-auto bg-white p-6 rounded-xl shadow-md border border-gray-200 mt-10">
+            <h2 class="text-xl font-bold text-gray-800 text-center mb-4"><i class="fa-solid fa-lock text-red-700 mr-2"></i>Acesso Administrativo</h2>
+            <form onsubmit="handleLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Senha do Gestor</label>
+                    <input type="password" id="admin-password" class="w-full border p-2 rounded-lg mt-1" required placeholder="Digite sua senha">
+                </div>
+                <button type="submit" class="w-full bg-red-700 hover:bg-red-800 text-white font-bold py-2 rounded-lg transition">
+                    Entrar no Painel
+                </button>
+            </form>
+        </div>
+
+        <!-- Conteúdo do Dashboard Admin (Oculto até autenticar) -->
+        <div id="admin-content" class="hidden space-y-6">
+            
+            <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm">
+                <h2 class="text-2xl font-bold text-gray-800">Painel do Gestor</h2>
+                <button onclick="logoutAdmin()" class="text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-lg">Sair</button>
+            </div>
+
+            <!-- Métricas Financeiras e do Dia -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-green-500">
+                    <p class="text-xs text-gray-500 font-bold uppercase">Vendas de Hoje</p>
+                    <p id="dash-sales" class="text-2xl font-bold text-gray-800">R$ 0,00</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-red-500">
+                    <p class="text-xs text-gray-500 font-bold uppercase">Gastos / Investimentos</p>
+                    <p id="dash-expenses" class="text-2xl font-bold text-gray-800">R$ 0,00</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-blue-500">
+                    <p class="text-xs text-gray-500 font-bold uppercase">Lucro Estimado</p>
+                    <p id="dash-profit" class="text-2xl font-bold text-gray-800">R$ 0,00</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-yellow-500">
+                    <p class="text-xs text-gray-500 font-bold uppercase">Marmitas Saídas Hoje</p>
+                    <p id="dash-marmitas-count" class="text-2xl font-bold text-gray-800">0</p>
+                </div>
+            </div>
+
+            <!-- Destaques do Dia (Tamanhos e Espetos mais vendidos) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-white p-4 rounded-xl shadow-sm">
+                    <h3 class="font-bold text-gray-700 mb-2"><i class="fa-solid fa-trophy text-yellow-500 mr-2"></i>Tamanho Mais Vendido Hoje</h3>
+                    <p id="top-size" class="text-lg text-gray-800 font-semibold">-</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl shadow-sm">
+                    <h3 class="font-bold text-gray-700 mb-2"><i class="fa-solid fa-fire text-red-500 mr-2"></i>Espetinho Mais Vendido Hoje</h3>
+                    <p id="top-espeto" class="text-lg text-gray-800 font-semibold">-</p>
+                </div>
+            </div>
+
+            <!-- Gerenciamento de Pedidos -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+                <h3 class="text-lg font-bold text-gray-800 mb-4"><i class="fa-solid fa-list-check text-red-700 mr-2"></i>Pedidos em Tempo Real</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-gray-100 text-gray-700 border-b">
+                                <th class="p-2">Cliente</th>
+                                <th class="p-2">Itens</th>
+                                <th class="p-2">Endereço</th>
+                                <th class="p-2">Desc.</th>
+                                <th class="p-2">Total</th>
+                                <th class="p-2">Status</th>
+                                <th class="p-2">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-orders-table">
+                            <!-- Inserido dinamicamente via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Calculadora de Rendimento e Insumos -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 space-y-4">
+                <h3 class="text-lg font-bold text-gray-800"><i class="fa-solid fa-calculator text-red-700 mr-2"></i>Calculadora de Rendimento de Insumos</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                    <input type="text" id="calc-name" placeholder="Item (Ex: Arroz)" class="border p-2 rounded-lg text-sm">
+                    <input type="number" id="calc-cost" placeholder="Valor Pago (R$)" class="border p-2 rounded-lg text-sm">
+                    <input type="number" id="calc-qty-g" placeholder="Qtd Comprada (g ou ml)" class="border p-2 rounded-lg text-sm">
+                    <input type="number" id="calc-portion-g" placeholder="Porção/Marmita (g ou ml)" class="border p-2 rounded-lg text-sm">
+                </div>
+                <button onclick="calculateAndSaveYield()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg text-sm">
+                    Calcular Rendimento e Salvar
+                </button>
+                <div id="calc-result" class="text-sm font-semibold text-gray-700 bg-gray-50 p-3 rounded-lg hidden"></div>
+            </div>
+
+            <!-- Cadastro e Gestão de Cardápio / Tamanhos -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Ativar/Desativar e Cadastrar Itens -->
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 space-y-4">
+                    <h3 class="text-lg font-bold text-gray-800"><i class="fa-solid fa-utensils text-red-700 mr-2"></i>Gestão do Cardápio</h3>
+                    
+                    <!-- Novo Item -->
+                    <div class="border p-3 rounded-lg space-y-2 bg-gray-50">
+                        <p class="text-xs font-bold text-gray-600 uppercase">Novo Item / Espeto / Acompanhamento</p>
+                        <input type="text" id="new-item-name" placeholder="Nome do Item" class="w-full border p-2 rounded-lg text-sm">
+                        <div class="flex gap-2">
+                            <select id="new-item-category" class="w-1/2 border p-2 rounded-lg text-sm">
+                                <option value="marmita_item">Item de Marmita</option>
+                                <option value="espeto">Espeto</option>
+                                <option value="bebida">Bebida</option>
+                                <option value="sobremesa">Sobremesa</option>
+                            </select>
+                            <input type="number" id="new-item-price" placeholder="Preço (R$)" class="w-1/2 border p-2 rounded-lg text-sm">
+                        </div>
+                        <button onclick="addNewMenuItem()" class="w-full bg-green-600 text-white text-sm font-bold py-2 rounded-lg">Cadastrar Item</button>
+                    </div>
+
+                    <!-- Lista para Ativar/Desativar -->
+                    <div id="admin-menu-items" class="space-y-2 max-h-60 overflow-y-auto">
+                        <!-- Inserido dinamicamente -->
+                    </div>
+                </div>
+
+                <!-- Cadastro de Tamanhos de Marmita -->
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 space-y-4">
+                    <h3 class="text-lg font-bold text-gray-800"><i class="fa-solid fa-box text-red-700 mr-2"></i>Tamanhos de Recipientes</h3>
+                    
+                    <!-- Novo Tamanho -->
+                    <div class="border p-3 rounded-lg space-y-2 bg-gray-50">
+                        <p class="text-xs font-bold text-gray-600 uppercase">Novo Tamanho de Marmita</p>
+                        <input type="text" id="new-size-name" placeholder="Ex: Média (500ml)" class="w-full border p-2 rounded-lg text-sm">
+                        <div class="flex gap-2">
+                            <input type="number" id="new-size-ml" placeholder="Capacidade (ml)" class="w-1/2 border p-2 rounded-lg text-sm">
+                            <input type="number" id="new-size-price" placeholder="Preço (R$)" class="w-1/2 border p-2 rounded-lg text-sm">
+                        </div>
+                        <button onclick="addNewMarmitaSize()" class="w-full bg-green-600 text-white text-sm font-bold py-2 rounded-lg">Cadastrar Tamanho</button>
+                    </div>
+
+                    <!-- Lista de Tamanhos cadastrados -->
+                    <div id="admin-marmita-sizes" class="space-y-2 max-h-60 overflow-y-auto">
+                        <!-- Inserido dinamicamente -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Registro de Despesas Adicionais -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 space-y-4">
+                <h3 class="text-lg font-bold text-gray-800"><i class="fa-solid fa-receipt text-red-700 mr-2"></i>Registrar Despesas/Gastos Gerais</h3>
+                <div class="flex gap-2">
+                    <input type="text" id="expense-desc" placeholder="Descrição do gasto (Ex: Gás, Carvão)" class="w-2/3 border p-2 rounded-lg text-sm">
+                    <input type="number" id="expense-amount" placeholder="Valor (R$)" class="w-1/3 border p-2 rounded-lg text-sm">
+                </div>
+                <button onclick="addExpense()" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-4 rounded-lg text-sm">Registrar Gasto</button>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- LOGICA JAVASCRIPT -->
+    <script>
+        // CONFIGURAÇÃO DO SUPABASE
+        const SUPABASE_URL = 'SUA_SUPABASE_URL';
+        const SUPABASE_KEY = 'SUA_SUPABASE_KEY';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // ESTADO GLOBAL
+        let selectedSize = null;
+        let selectedMarmitaItems = [];
+        let selectedExtras = {}; // id: quantity
+        let activeOrderId = localStorage.getItem('activeOrderId') || null;
+
+        // INICIALIZAÇÃO
+        document.addEventListener('DOMContentLoaded', () => {
+            loadClientView();
+            if (activeOrderId) {
+                trackOrder(activeOrderId);
+            }
+        });
+
+        // Trocador de Visão (Cliente x ADM)
+        function toggleView() {
+            const clientView = document.getElementById('client-view');
+            const adminView = document.getElementById('admin-view');
+            const btn = document.getElementById('nav-toggle-btn');
+
+            if (adminView.classList.contains('hidden')) {
+                clientView.classList.add('hidden');
+                adminView.classList.remove('hidden');
+                btn.innerHTML = '<i class="fa-solid fa-shopping-bag mr-1"></i> Área Cliente';
+            } else {
+                adminView.classList.add('hidden');
+                clientView.classList.remove('hidden');
+                btn.innerHTML = '<i class="fa-solid fa-lock mr-1"></i> Painel ADM';
+            }
+        }
+
+        /* ================= CARREGAMENTO DA ÁREA DO CLIENTE ================= */
+        async function loadClientView() {
+            // Carregar Tamanhos
+            const { data: sizes } = await supabase.from('marmita_sizes').select('*').eq('active', true);
+            const sizesContainer = document.getElementById('marmita-sizes-list');
+            sizesContainer.innerHTML = '';
+            sizes?.forEach(size => {
+                sizesContainer.innerHTML += `
+                    <div onclick="selectSize('${size.id}', '${size.name}', ${size.price})" 
+                         id="size-card-${size.id}" 
+                         class="size-card border-2 border-gray-200 p-3 rounded-xl text-center cursor-pointer hover:border-red-600 transition">
+                        <p class="font-bold text-gray-800">${size.name}</p>
+                        <p class="text-red-700 font-extrabold text-lg">R$ ${size.price.toFixed(2)}</p>
+                    </div>
+                `;
+            });
+
+            // Carregar Itens do Cardápio Ativos
+            const { data: items } = await supabase.from('menu_items').select('*').eq('active', true);
+            
+            const marmitaItemsContainer = document.getElementById('marmita-items-list');
+            const espetosContainer = document.getElementById('espetos-list');
+            const extrasContainer = document.getElementById('extras-list');
+
+            marmitaItemsContainer.innerHTML = '';
+            espetosContainer.innerHTML = '';
+            extrasContainer.innerHTML = '';
+
+            items?.forEach(item => {
+                if (item.category === 'marmita_item') {
+                    marmitaItemsContainer.innerHTML += `
+                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg border">
+                            <span class="text-sm font-medium text-gray-700">${item.name}</span>
+                            <input type="checkbox" value="${item.name}" onchange="toggleMarmitaItem('${item.name}')" class="w-5 h-5 text-red-600 rounded">
+                        </label>
+                    `;
+                } else {
+                    const targetContainer = item.category === 'espeto' ? espetosContainer : extrasContainer;
+                    targetContainer.innerHTML += `
+                        <div class="flex items-center justify-between p-2 border rounded-lg">
+                            <div>
+                                <p class="text-sm font-medium text-gray-800">${item.name}</p>
+                                <p class="text-xs text-red-700 font-bold">R$ ${item.price.toFixed(2)}</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="updateExtraQty('${item.id}', '${item.name}', ${item.price}, -1)" class="bg-gray-200 px-2 rounded font-bold text-gray-700">-</button>
+                                <span id="qty-${item.id}" class="text-sm font-bold">0</span>
+                                <button onclick="updateExtraQty('${item.id}', '${item.name}', ${item.price}, 1)" class="bg-red-700 text-white px-2 rounded font-bold">+</button>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+        }
+
+        function selectSize(id, name, price) {
+            document.querySelectorAll('.size-card').forEach(el => el.classList.remove('border-red-600', 'bg-red-50'));
+            document.getElementById(`size-card-${id}`).classList.add('border-red-600', 'bg-red-50');
+            selectedSize = { id, name, price };
+            calculateTotal();
+        }
+
+        function toggleMarmitaItem(itemName) {
+            const index = selectedMarmitaItems.indexOf(itemName);
+            if (index > -1) {
+                selectedMarmitaItems.splice(index, 1);
+            } else {
+                selectedMarmitaItems.push(itemName);
+            }
+        }
+
+        function updateExtraQty(id, name, price, delta) {
+            if (!selectedExtras[id]) {
+                selectedExtras[id] = { name, price, qty: 0 };
+            }
+            selectedExtras[id].qty += delta;
+            if (selectedExtras[id].qty < 0) selectedExtras[id].qty = 0;
+            
+            document.getElementById(`qty-${id}`).innerText = selectedExtras[id].qty;
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            let total = selectedSize ? selectedSize.price : 0;
+            Object.values(selectedExtras).forEach(item => {
+                total += item.price * item.qty;
+            });
+            document.getElementById('order-total').innerText = `R$ ${total.toFixed(2)}`;
+            return total;
+        }
+
+        async function submitOrder() {
+            const name = document.getElementById('cust-name').value.trim();
+            const phone = document.getElementById('cust-phone').value.trim();
+            const address = document.getElementById('cust-address').value.trim();
+            const disposable = document.getElementById('cust-disposable').checked;
+
+            if (!selectedSize) return alert('Por favor, selecione o tamanho da marmita.');
+            if (!name || !address) return alert('Por favor, informe seu nome e endereço de entrega.');
+
+            const orderPayload = {
+                marmita_size: selectedSize.name,
+                marmita_items: selectedMarmitaItems,
+                extras: Object.values(selectedExtras).filter(e => e.qty > 0)
+            };
+
+            const { data, error } = await supabase.from('orders').insert([{
+                customer_name: name,
+                customer_phone: phone,
+                delivery_address: address,
+                needs_disposable: disposable,
+                items: orderPayload,
+                total_price: calculateTotal(),
+                status: 'Pendente'
+            }]).select();
+
+            if (error) {
+                alert('Erro ao enviar o pedido.');
+            } else {
+                alert('Pedido enviado com sucesso!');
+                activeOrderId = data[0].id;
+                localStorage.setItem('activeOrderId', activeOrderId);
+                trackOrder(activeOrderId);
+            }
+        }
+
+        async function trackOrder(orderId) {
+            const trackingCard = document.getElementById('tracking-card');
+            trackingCard.classList.remove('hidden');
+
+            // Inscrever no Realtime do Supabase
+            supabase
+                .channel(`public:orders:id=eq.${orderId}`)
+                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders', filter: `id=eq.${orderId}` }, payload => {
+                    updateTrackingUI(payload.new.status);
+                })
+                .subscribe();
+
+            // Consulta inicial
+            const { data } = await supabase.from('orders').select('status').eq('id', orderId).single();
+            if (data) updateTrackingUI(data.status);
+        }
+
+        function updateTrackingUI(status) {
+            const badge = document.getElementById('tracking-status-badge');
+            const info = document.getElementById('tracking-info');
+            const progress = document.getElementById('tracking-progress');
+
+            badge.innerText = status;
+
+            if (status === 'Pendente') {
+                info.innerText = 'Seu pedido foi recebido e aguarda confirmação.';
+                progress.style.width = '25%';
+            } else if (status === 'Em Preparo') {
+                info.innerText = 'Sua refeição está sendo montada com carinho!';
+                progress.style.width = '50%';
+            } else if (status === 'Saiu para Entrega') {
+                info.innerText = 'O entregador já está a caminho do seu endereço!';
+                progress.style.width = '75%';
+            } else if (status === 'Entregue') {
+                info.innerText = 'Pedido entregue. Bom apetite!';
+                progress.style.width = '100%';
+            }
+        }
+
+        /* ================= CARREGAMENTO DA ÁREA ADM ================= */
+        function handleLogin(e) {
+            e.preventDefault();
+            const password = document.getElementById('admin-password').value;
+            // Senha simples para fins demonstrativos (Personalize aqui)
+            if (password === 'admin123') {
+                document.getElementById('admin-login-card').classList.add('hidden');
+                document.getElementById('admin-content').classList.remove('hidden');
+                loadAdminData();
+            } else {
+                alert('Senha incorreta!');
+            }
+        }
+
+        function logoutAdmin() {
+            document.getElementById('admin-login-card').classList.remove('hidden');
+            document.getElementById('admin-content').classList.add('hidden');
+        }
+
+        async function loadAdminData() {
+            loadAdminOrders();
+            loadAdminDashboard();
+            loadAdminMenuItems();
+            loadAdminSizes();
+        }
+
+        async function loadAdminOrders() {
+            const { data: orders } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
+            const tbody = document.getElementById('admin-orders-table');
+            tbody.innerHTML = '';
+
+            orders?.forEach(order => {
+                const itemsStr = `
+                    <b>Marmita:</b> ${order.items.marmita_size}<br>
+                    <b>Itens:</b> ${order.items.marmita_items?.join(', ')}<br>
+                    <b>Extras:</b> ${order.items.extras?.map(e => `${e.qty}x${e.name}`).join(', ')}
+                `;
+
+                tbody.innerHTML += `
+                    <tr class="border-b">
+                        <td class="p-2"><b>${order.customer_name}</b><br><span class="text-xs text-gray-500">${order.customer_phone || ''}</span></td>
+                        <td class="p-2 text-xs">${itemsStr}</td>
+                        <td class="p-2 text-xs">${order.delivery_address}</td>
+                        <td class="p-2 text-xs">${order.needs_disposable ? 'Sim' : 'Não'}</td>
+                        <td class="p-2 font-bold text-red-700">R$ ${order.total_price.toFixed(2)}</td>
+                        <td class="p-2">
+                            <select onchange="updateOrderStatus('${order.id}', this.value)" class="border text-xs rounded p-1">
+                                <option value="Pendente" ${order.status === 'Pendente' ? 'selected' : ''}>Pendente</option>
+                                <option value="Em Preparo" ${order.status === 'Em Preparo' ? 'selected' : ''}>Em Preparo</option>
+                                <option value="Saiu para Entrega" ${order.status === 'Saiu para Entrega' ? 'selected' : ''}>Saiu para Entrega</option>
+                                <option value="Entregue" ${order.status === 'Entregue' ? 'selected' : ''}>Entregue</option>
+                            </select>
+                        </td>
+                        <td class="p-2">
+                            <button onclick="deleteOrder('${order.id}')" class="text-red-600 hover:text-red-800"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function updateOrderStatus(id, status) {
+            await supabase.from('orders').update({ status }).eq('id', id);
+            loadAdminDashboard();
+        }
+
+        async function deleteOrder(id) {
+            if (confirm('Deseja excluir este pedido?')) {
+                await supabase.from('orders').delete().eq('id', id);
+                loadAdminOrders();
+            }
+        }
+
+        async function loadAdminDashboard() {
+            const today = new Date().toISOString().split('T')[0];
+            const { data: orders } = await supabase.from('orders').select('*').gte('created_at', today);
+            const { data: expenses } = await supabase.from('expenses').select('*').gte('created_at', today);
+
+            let totalSales = 0;
+            let totalMarmitas = 0;
+            let sizeCounts = {};
+            let espetoCounts = {};
+
+            orders?.forEach(o => {
+                totalSales += o.total_price;
+                totalMarmitas += 1;
+
+                // Contagem do tamanho
+                const size = o.items.marmita_size;
+                sizeCounts[size] = (sizeCounts[size] || 0) + 1;
+
+                // Contagem de espetos
+                o.items.extras?.forEach(e => {
+                    if (e.name.toLowerCase().includes('espeto')) {
+                        espetoCounts[e.name] = (espetoCounts[e.name] || 0) + e.qty;
+                    }
+                });
+            });
+
+            let totalExpenses = expenses?.reduce((acc, curr) => acc + curr.amount, 0) || 0;
+
+            document.getElementById('dash-sales').innerText = `R$ ${totalSales.toFixed(2)}`;
+            document.getElementById('dash-expenses').innerText = `R$ ${totalExpenses.toFixed(2)}`;
+            document.getElementById('dash-profit').innerText = `R$ ${(totalSales - totalExpenses).toFixed(2)}`;
+            document.getElementById('dash-marmitas-count').innerText = totalMarmitas;
+
+            // Encontrar mais vendida
+            const topSize = Object.keys(sizeCounts).reduce((a, b) => sizeCounts[a] > sizeCounts[b] ? a : b, '-');
+            const topEspeto = Object.keys(espetoCounts).reduce((a, b) => espetoCounts[a] > espetoCounts[b] ? a : b, '-');
+
+            document.getElementById('top-size').innerText = topSize;
+            document.getElementById('top-espeto').innerText = topEspeto;
+        }
+
+        function calculateAndSaveYield() {
+            const name = document.getElementById('calc-name').value;
+            const cost = parseFloat(document.getElementById('calc-cost').value);
+            const qtyG = parseInt(document.getElementById('calc-qty-g').value);
+            const portionG = parseInt(document.getElementById('calc-portion-g').value);
+
+            if (!name || !cost || !qtyG || !portionG) return alert('Preencha todos os campos da calculadora.');
+
+            const totalPortions = Math.floor(qtyG / portionG);
+            const costPerPortion = cost / totalPortions;
+
+            const resDiv = document.getElementById('calc-result');
+            resDiv.classList.remove('hidden');
+            resDiv.innerHTML = `
+                Rendimento: <b>${totalPortions} marmitas</b><br>
+                Custo do Insumo por Marmita: <b>R$ ${costPerPortion.toFixed(2)}</b>
+            `;
+
+            // Opcional: Salvar como gasto automático
+            supabase.from('inventory').insert([{ item_name: name, cost_price: cost, quantity_bought_g: qtyG, portion_per_marmita_g: portionG }]);
+            supabase.from('expenses').insert([{ description: `Compra de Insumo: ${name}`, amount: cost }]);
+        }
+
+        async function loadAdminMenuItems() {
+            const { data: items } = await supabase.from('menu_items').select('*').order('name');
+            const container = document.getElementById('admin-menu-items');
+            container.innerHTML = '';
+
+            items?.forEach(item => {
+                container.innerHTML += `
+                    <div class="flex items-center justify-between p-2 border rounded-lg bg-white">
+                        <span class="text-sm font-medium ${!item.active ? 'line-through text-gray-400' : ''}">${item.name} (${item.category})</span>
+                        <button onclick="toggleItemActive('${item.id}', ${!item.active})" class="text-xs px-2 py-1 rounded font-bold ${item.active ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}">
+                            ${item.active ? 'Desativar (Zerar)' : 'Ativar'}
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        async function toggleItemActive(id, active) {
+            await supabase.from('menu_items').update({ active }).eq('id', id);
+            loadAdminMenuItems();
+            loadClientView();
+        }
+
+        async function addNewMenuItem() {
+            const name = document.getElementById('new-item-name').value;
+            const category = document.getElementById('new-item-category').value;
+            const price = parseFloat(document.getElementById('new-item-price').value) || 0;
+
+            if (!name) return alert('Informe o nome do item');
+
+            await supabase.from('menu_items').insert([{ name, category, price, active: true }]);
+            document.getElementById('new-item-name').value = '';
+            loadAdminMenuItems();
+            loadClientView();
+        }
+
+        async function loadAdminSizes() {
+            const { data: sizes } = await supabase.from('marmita_sizes').select('*');
+            const container = document.getElementById('admin-marmita-sizes');
+            container.innerHTML = '';
+
+            sizes?.forEach(size => {
+                container.innerHTML += `
+                    <div class="flex items-center justify-between p-2 border rounded-lg bg-white">
+                        <span class="text-sm font-medium">${size.name} - R$ ${size.price.toFixed(2)}</span>
+                        <button onclick="toggleSizeActive('${size.id}', ${!size.active})" class="text-xs px-2 py-1 rounded font-bold ${size.active ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}">
+                            ${size.active ? 'Desativar' : 'Ativar'}
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        async function toggleSizeActive(id, active) {
+            await supabase.from('marmita_sizes').update({ active }).eq('id', id);
+            loadAdminSizes();
+            loadClientView();
+        }
+
+        async function addNewMarmitaSize() {
+            const name = document.getElementById('new-size-name').value;
+            const capacity_ml = parseInt(document.getElementById('new-size-ml').value);
+            const price = parseFloat(document.getElementById('new-size-price').value);
+
+            if (!name || !capacity_ml || !price) return alert('Preencha os dados do tamanho.');
+
+            await supabase.from('marmita_sizes').insert([{ name, capacity_ml, price, active: true }]);
+            loadAdminSizes();
+            loadClientView();
+        }
+
+        async function addExpense() {
+            const description = document.getElementById('expense-desc').value;
+            const amount = parseFloat(document.getElementById('expense-amount').value);
+
+            if (!description || !amount) return alert('Preencha a descrição e valor do gasto.');
+
+            await supabase.from('expenses').insert([{ description, amount }]);
+            document.getElementById('expense-desc').value = '';
+            document.getElementById('expense-amount').value = '';
+            loadAdminDashboard();
+        }
+    </script>
+</body>
+</html>
