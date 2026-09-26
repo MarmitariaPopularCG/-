@@ -459,16 +459,18 @@
         }
 
         function handleLogin(e) {
-            e.preventDefault();
-            const password = document.getElementById('admin-password').value;
-            if (password === 'admin123') {
-                document.getElementById('admin-login-card').classList.add('hidden');
-                document.getElementById('admin-content').classList.remove('hidden');
-                loadAdminData();
-            } else {
-                alert('Palavra-passe incorreta!');
-            }
-        }
+    e.preventDefault();
+    const password = document.getElementById('admin-password').value;
+    
+    // Substitua 'SUA_NOVA_SENHA_AQUI' pela nova palavra-passe desejada
+    if (password === 'SUA_NOVA_SENHA_AQUI') { 
+        document.getElementById('admin-login-card').classList.add('hidden');
+        document.getElementById('admin-content').classList.remove('hidden');
+        loadAdminData();
+    } else {
+        alert('Palavra-passe incorreta!');
+    }
+}
 
         function logoutAdmin() {
             document.getElementById('admin-login-card').classList.remove('hidden');
