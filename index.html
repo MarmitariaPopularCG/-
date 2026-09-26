@@ -19,8 +19,8 @@
             <h1 class="text-xl font-bold"><i class="fa-solid fa-utensils mr-2"></i>Marmitaria Popular CG</h1>
             <p class="text-xs text-red-200">Espetos e Marmitas</p>
         </div>
-        <button id="nav-toggle-btn" onclick="toggleView()" class="bg-red-900 hover:bg-red-800 text-white text-xs px-3 py-2 rounded-lg border border-red-500 transition">
-            <i class="fa-solid fa-lock mr-1"></i> Painel ADM
+        <button id="nav-toggle-btn" onclick="toggleView()" class="bg-red-900 hover:bg-red-800 text-white text-xs px-3 py-2 rounded-lg border border-red-500 transition flex items-center gap-1">
+            <i class="fa-solid fa-lock"></i> <span>Painel ADM</span>
         </button>
     </header>
 
@@ -33,9 +33,9 @@
                 <h3 class="font-bold text-gray-800"><i class="fa-solid fa-truck-fast text-green-600 mr-2"></i>Status do seu Pedido</h3>
                 <span id="tracking-status-badge" class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-bold">Pendente</span>
             </div>
-            <p class="text-sm text-gray-600" id="tracking-info">Carregando informações...</p>
+            <p class="text-sm text-gray-600" id="tracking-info">A carregar informações...</p>
             <div class="w-full bg-gray-200 rounded-full h-2.5">
-                <div id="tracking-progress" class="bg-green-600 h-2.5 rounded-full" style="width: 25%"></div>
+                <div id="tracking-progress" class="bg-green-600 h-2.5 rounded-full transition-all duration-500" style="width: 25%"></div>
             </div>
         </div>
 
@@ -43,15 +43,15 @@
         <section class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
             <h2 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2"><span class="bg-red-700 text-white rounded-full px-2 py-0.5 text-xs mr-2">1</span> Escolha o Tamanho da Marmita</h2>
             <div id="marmita-sizes-list" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <!-- Inserido dinamicamente via JS -->
+                <p class="text-sm text-gray-400">A carregar tamanhos...</p>
             </div>
         </section>
 
         <!-- Passo 2: Acompanhamentos da Marmita -->
         <section class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-            <h2 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2"><span class="bg-red-700 text-white rounded-full px-2 py-0.5 text-xs mr-2">2</span> Monte sua Marmita</h2>
+            <h2 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2"><span class="bg-red-700 text-white rounded-full px-2 py-0.5 text-xs mr-2">2</span> Monte a sua Marmita</h2>
             <div id="marmita-items-list" class="space-y-2">
-                <!-- Inserido dinamicamente via JS -->
+                <p class="text-sm text-gray-400">A carregar itens...</p>
             </div>
         </section>
 
@@ -59,7 +59,7 @@
         <section class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
             <h2 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2"><i class="fa-solid fa-drumstick-bite text-red-700 mr-2"></i>Espetinhos</h2>
             <div id="espetos-list" class="space-y-2">
-                <!-- Inserido dinamicamente via JS -->
+                <p class="text-sm text-gray-400">A carregar espetinhos...</p>
             </div>
         </section>
 
@@ -67,7 +67,7 @@
         <section class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
             <h2 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2"><i class="fa-solid fa-bottle-water text-red-700 mr-2"></i>Bebidas e Sobremesas</h2>
             <div id="extras-list" class="space-y-2">
-                <!-- Inserido dinamicamente via JS -->
+                <p class="text-sm text-gray-400">A carregar opções...</p>
             </div>
         </section>
 
@@ -75,7 +75,7 @@
         <section class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 space-y-4">
             <h2 class="text-lg font-bold text-gray-800 border-b pb-2"><i class="fa-solid fa-location-dot text-red-700 mr-2"></i>Dados da Entrega</h2>
             <div>
-                <label class="block text-sm font-medium text-gray-700">Seu Nome</label>
+                <label class="block text-sm font-medium text-gray-700">O seu Nome</label>
                 <input type="text" id="cust-name" class="w-full border p-2 rounded-lg mt-1" placeholder="Ex: João Silva">
             </div>
             <div>
@@ -112,8 +112,8 @@
             <h2 class="text-xl font-bold text-gray-800 text-center mb-4"><i class="fa-solid fa-lock text-red-700 mr-2"></i>Acesso Administrativo</h2>
             <form onsubmit="handleLogin(event)" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Senha do Gestor</label>
-                    <input type="password" id="admin-password" class="w-full border p-2 rounded-lg mt-1" required placeholder="Digite sua senha">
+                    <label class="block text-sm font-medium text-gray-700">Palavra-passe do Gestor</label>
+                    <input type="password" id="admin-password" class="w-full border p-2 rounded-lg mt-1" required placeholder="Insira a palavra-passe">
                 </div>
                 <button type="submit" class="w-full bg-red-700 hover:bg-red-800 text-white font-bold py-2 rounded-lg transition">
                     Entrar no Painel
@@ -121,15 +121,14 @@
             </form>
         </div>
 
-        <!-- Conteúdo do Dashboard Admin (Oculto até autenticar) -->
+        <!-- Conteúdo do Dashboard Admin -->
         <div id="admin-content" class="hidden space-y-6">
-            
             <div class="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm">
                 <h2 class="text-2xl font-bold text-gray-800">Painel do Gestor</h2>
                 <button onclick="logoutAdmin()" class="text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-lg">Sair</button>
             </div>
 
-            <!-- Métricas Financeiras e do Dia -->
+            <!-- Métricas Financeiras -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-green-500">
                     <p class="text-xs text-gray-500 font-bold uppercase">Vendas de Hoje</p>
@@ -144,12 +143,12 @@
                     <p id="dash-profit" class="text-2xl font-bold text-gray-800">R$ 0,00</p>
                 </div>
                 <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-yellow-500">
-                    <p class="text-xs text-gray-500 font-bold uppercase">Marmitas Saídas Hoje</p>
+                    <p class="text-xs text-gray-500 font-bold uppercase">Marmitas Vendidas Hoje</p>
                     <p id="dash-marmitas-count" class="text-2xl font-bold text-gray-800">0</p>
                 </div>
             </div>
 
-            <!-- Destaques do Dia (Tamanhos e Espetos mais vendidos) -->
+            <!-- Destaques -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="bg-white p-4 rounded-xl shadow-sm">
                     <h3 class="font-bold text-gray-700 mb-2"><i class="fa-solid fa-trophy text-yellow-500 mr-2"></i>Tamanho Mais Vendido Hoje</h3>
@@ -161,7 +160,7 @@
                 </div>
             </div>
 
-            <!-- Gerenciamento de Pedidos -->
+            <!-- Tabela de Pedidos -->
             <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
                 <h3 class="text-lg font-bold text-gray-800 mb-4"><i class="fa-solid fa-list-check text-red-700 mr-2"></i>Pedidos em Tempo Real</h3>
                 <div class="overflow-x-auto">
@@ -178,13 +177,13 @@
                             </tr>
                         </thead>
                         <tbody id="admin-orders-table">
-                            <!-- Inserido dinamicamente via JS -->
+                            <!-- Preenchido via JS -->
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Calculadora de Rendimento e Insumos -->
+            <!-- Calculadora -->
             <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 space-y-4">
                 <h3 class="text-lg font-bold text-gray-800"><i class="fa-solid fa-calculator text-red-700 mr-2"></i>Calculadora de Rendimento de Insumos</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
@@ -199,13 +198,10 @@
                 <div id="calc-result" class="text-sm font-semibold text-gray-700 bg-gray-50 p-3 rounded-lg hidden"></div>
             </div>
 
-            <!-- Cadastro e Gestão de Cardápio / Tamanhos -->
+            <!-- Gestão do Cardápio -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Ativar/Desativar e Cadastrar Itens -->
                 <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 space-y-4">
                     <h3 class="text-lg font-bold text-gray-800"><i class="fa-solid fa-utensils text-red-700 mr-2"></i>Gestão do Cardápio</h3>
-                    
-                    <!-- Novo Item -->
                     <div class="border p-3 rounded-lg space-y-2 bg-gray-50">
                         <p class="text-xs font-bold text-gray-600 uppercase">Novo Item / Espeto / Acompanhamento</p>
                         <input type="text" id="new-item-name" placeholder="Nome do Item" class="w-full border p-2 rounded-lg text-sm">
@@ -220,18 +216,11 @@
                         </div>
                         <button onclick="addNewMenuItem()" class="w-full bg-green-600 text-white text-sm font-bold py-2 rounded-lg">Cadastrar Item</button>
                     </div>
-
-                    <!-- Lista para Ativar/Desativar -->
-                    <div id="admin-menu-items" class="space-y-2 max-h-60 overflow-y-auto">
-                        <!-- Inserido dinamicamente -->
-                    </div>
+                    <div id="admin-menu-items" class="space-y-2 max-h-60 overflow-y-auto"></div>
                 </div>
 
-                <!-- Cadastro de Tamanhos de Marmita -->
                 <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 space-y-4">
                     <h3 class="text-lg font-bold text-gray-800"><i class="fa-solid fa-box text-red-700 mr-2"></i>Tamanhos de Recipientes</h3>
-                    
-                    <!-- Novo Tamanho -->
                     <div class="border p-3 rounded-lg space-y-2 bg-gray-50">
                         <p class="text-xs font-bold text-gray-600 uppercase">Novo Tamanho de Marmita</p>
                         <input type="text" id="new-size-name" placeholder="Ex: Média (500ml)" class="w-full border p-2 rounded-lg text-sm">
@@ -241,41 +230,39 @@
                         </div>
                         <button onclick="addNewMarmitaSize()" class="w-full bg-green-600 text-white text-sm font-bold py-2 rounded-lg">Cadastrar Tamanho</button>
                     </div>
-
-                    <!-- Lista de Tamanhos cadastrados -->
-                    <div id="admin-marmita-sizes" class="space-y-2 max-h-60 overflow-y-auto">
-                        <!-- Inserido dinamicamente -->
-                    </div>
+                    <div id="admin-marmita-sizes" class="space-y-2 max-h-60 overflow-y-auto"></div>
                 </div>
             </div>
 
-            <!-- Registro de Despesas Adicionais -->
+            <!-- Despesas -->
             <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 space-y-4">
                 <h3 class="text-lg font-bold text-gray-800"><i class="fa-solid fa-receipt text-red-700 mr-2"></i>Registrar Despesas/Gastos Gerais</h3>
                 <div class="flex gap-2">
-                    <input type="text" id="expense-desc" placeholder="Descrição do gasto (Ex: Gás, Carvão)" class="w-2/3 border p-2 rounded-lg text-sm">
+                    <input type="text" id="expense-desc" placeholder="Descrição (Ex: Gás, Carvão)" class="w-2/3 border p-2 rounded-lg text-sm">
                     <input type="number" id="expense-amount" placeholder="Valor (R$)" class="w-1/3 border p-2 rounded-lg text-sm">
                 </div>
                 <button onclick="addExpense()" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-4 rounded-lg text-sm">Registrar Gasto</button>
             </div>
-
         </div>
     </main>
 
-    <!-- LOGICA JAVASCRIPT -->
     <script>
-        // CONFIGURAÇÃO DO SUPABASE
+        // CONFIGURAÇÃO DO SUPABASE (COLOQUE AS SUAS CHAVES AQUI)
         const SUPABASE_URL = 'https://qvvwtreiqaoqdjgxyvan.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_DDL0KsehJWtTXU76BCzLRw_BfFxTVXw';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        let supabaseClient;
+        try {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        } catch (err) {
+            console.error("Erro ao inicializar o Supabase:", err);
+        }
 
-        // ESTADO GLOBAL
         let selectedSize = null;
         let selectedMarmitaItems = [];
-        let selectedExtras = {}; // id: quantity
+        let selectedExtras = {};
         let activeOrderId = localStorage.getItem('activeOrderId') || null;
 
-        // INICIALIZAÇÃO
         document.addEventListener('DOMContentLoaded', () => {
             loadClientView();
             if (activeOrderId) {
@@ -283,7 +270,6 @@
             }
         });
 
-        // Trocador de Visão (Cliente x ADM)
         function toggleView() {
             const clientView = document.getElementById('client-view');
             const adminView = document.getElementById('admin-view');
@@ -292,33 +278,41 @@
             if (adminView.classList.contains('hidden')) {
                 clientView.classList.add('hidden');
                 adminView.classList.remove('hidden');
-                btn.innerHTML = '<i class="fa-solid fa-shopping-bag mr-1"></i> Área Cliente';
+                btn.innerHTML = '<i class="fa-solid fa-shopping-bag mr-1"></i> <span>Área Cliente</span>';
             } else {
                 adminView.classList.add('hidden');
                 clientView.classList.remove('hidden');
-                btn.innerHTML = '<i class="fa-solid fa-lock mr-1"></i> Painel ADM';
+                btn.innerHTML = '<i class="fa-solid fa-lock mr-1"></i> <span>Painel ADM</span>';
             }
         }
 
-        /* ================= CARREGAMENTO DA ÁREA DO CLIENTE ================= */
         async function loadClientView() {
-            // Carregar Tamanhos
-            const { data: sizes } = await supabase.from('marmita_sizes').select('*').eq('active', true);
-            const sizesContainer = document.getElementById('marmita-sizes-list');
-            sizesContainer.innerHTML = '';
-            sizes?.forEach(size => {
-                sizesContainer.innerHTML += `
-                    <div onclick="selectSize('${size.id}', '${size.name}', ${size.price})" 
-                         id="size-card-${size.id}" 
-                         class="size-card border-2 border-gray-200 p-3 rounded-xl text-center cursor-pointer hover:border-red-600 transition">
-                        <p class="font-bold text-gray-800">${size.name}</p>
-                        <p class="text-red-700 font-extrabold text-lg">R$ ${size.price.toFixed(2)}</p>
-                    </div>
-                `;
-            });
+            if (!supabaseClient) return;
 
-            // Carregar Itens do Cardápio Ativos
-            const { data: items } = await supabase.from('menu_items').select('*').eq('active', true);
+            // Carregar Tamanhos
+            const { data: sizes, error: sizesErr } = await supabaseClient.from('marmita_sizes').select('*').eq('active', true);
+            const sizesContainer = document.getElementById('marmita-sizes-list');
+            
+            if (sizesErr) {
+                sizesContainer.innerHTML = '<p class="text-xs text-red-500">Erro ao carregar tamanhos. Verifique o Supabase.</p>';
+            } else if (sizes && sizes.length > 0) {
+                sizesContainer.innerHTML = '';
+                sizes.forEach(size => {
+                    sizesContainer.innerHTML += `
+                        <div onclick="selectSize('${size.id}', '${size.name}', ${size.price})" 
+                             id="size-card-${size.id}" 
+                             class="size-card border-2 border-gray-200 p-3 rounded-xl text-center cursor-pointer hover:border-red-600 transition">
+                            <p class="font-bold text-gray-800">${size.name}</p>
+                            <p class="text-red-700 font-extrabold text-lg">R$ ${Number(size.price).toFixed(2)}</p>
+                        </div>
+                    `;
+                });
+            } else {
+                sizesContainer.innerHTML = '<p class="text-xs text-gray-500">Nenhum tamanho disponível.</p>';
+            }
+
+            // Carregar Itens
+            const { data: items, error: itemsErr } = await supabaseClient.from('menu_items').select('*').eq('active', true);
             
             const marmitaItemsContainer = document.getElementById('marmita-items-list');
             const espetosContainer = document.getElementById('espetos-list');
@@ -328,36 +322,39 @@
             espetosContainer.innerHTML = '';
             extrasContainer.innerHTML = '';
 
-            items?.forEach(item => {
-                if (item.category === 'marmita_item') {
-                    marmitaItemsContainer.innerHTML += `
-                        <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg border">
-                            <span class="text-sm font-medium text-gray-700">${item.name}</span>
-                            <input type="checkbox" value="${item.name}" onchange="toggleMarmitaItem('${item.name}')" class="w-5 h-5 text-red-600 rounded">
-                        </label>
-                    `;
-                } else {
-                    const targetContainer = item.category === 'espeto' ? espetosContainer : extrasContainer;
-                    targetContainer.innerHTML += `
-                        <div class="flex items-center justify-between p-2 border rounded-lg">
-                            <div>
-                                <p class="text-sm font-medium text-gray-800">${item.name}</p>
-                                <p class="text-xs text-red-700 font-bold">R$ ${item.price.toFixed(2)}</p>
+            if (items) {
+                items.forEach(item => {
+                    if (item.category === 'marmita_item') {
+                        marmitaItemsContainer.innerHTML += `
+                            <label class="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg border">
+                                <span class="text-sm font-medium text-gray-700">${item.name}</span>
+                                <input type="checkbox" value="${item.name}" onchange="toggleMarmitaItem('${item.name}')" class="w-5 h-5 text-red-600 rounded">
+                            </label>
+                        `;
+                    } else {
+                        const targetContainer = item.category === 'espeto' ? espetosContainer : extrasContainer;
+                        targetContainer.innerHTML += `
+                            <div class="flex items-center justify-between p-2 border rounded-lg">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-800">${item.name}</p>
+                                    <p class="text-xs text-red-700 font-bold">R$ ${Number(item.price).toFixed(2)}</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="updateExtraQty('${item.id}', '${item.name}', ${item.price}, -1)" class="bg-gray-200 px-2 rounded font-bold text-gray-700">-</button>
+                                    <span id="qty-${item.id}" class="text-sm font-bold">0</span>
+                                    <button onclick="updateExtraQty('${item.id}', '${item.name}', ${item.price}, 1)" class="bg-red-700 text-white px-2 rounded font-bold">+</button>
+                                </div>
                             </div>
-                            <div class="flex items-center gap-2">
-                                <button onclick="updateExtraQty('${item.id}', '${item.name}', ${item.price}, -1)" class="bg-gray-200 px-2 rounded font-bold text-gray-700">-</button>
-                                <span id="qty-${item.id}" class="text-sm font-bold">0</span>
-                                <button onclick="updateExtraQty('${item.id}', '${item.name}', ${item.price}, 1)" class="bg-red-700 text-white px-2 rounded font-bold">+</button>
-                            </div>
-                        </div>
-                    `;
-                }
-            });
+                        `;
+                    }
+                });
+            }
         }
 
         function selectSize(id, name, price) {
             document.querySelectorAll('.size-card').forEach(el => el.classList.remove('border-red-600', 'bg-red-50'));
-            document.getElementById(`size-card-${id}`).classList.add('border-red-600', 'bg-red-50');
+            const selectedCard = document.getElementById(`size-card-${id}`);
+            if (selectedCard) selectedCard.classList.add('border-red-600', 'bg-red-50');
             selectedSize = { id, name, price };
             calculateTotal();
         }
@@ -406,7 +403,7 @@
                 extras: Object.values(selectedExtras).filter(e => e.qty > 0)
             };
 
-            const { data, error } = await supabase.from('orders').insert([{
+            const { data, error } = await supabaseClient.from('orders').insert([{
                 customer_name: name,
                 customer_phone: phone,
                 delivery_address: address,
@@ -430,16 +427,14 @@
             const trackingCard = document.getElementById('tracking-card');
             trackingCard.classList.remove('hidden');
 
-            // Inscrever no Realtime do Supabase
-            supabase
+            supabaseClient
                 .channel(`public:orders:id=eq.${orderId}`)
                 .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders', filter: `id=eq.${orderId}` }, payload => {
                     updateTrackingUI(payload.new.status);
                 })
                 .subscribe();
 
-            // Consulta inicial
-            const { data } = await supabase.from('orders').select('status').eq('id', orderId).single();
+            const { data } = await supabaseClient.from('orders').select('status').eq('id', orderId).single();
             if (data) updateTrackingUI(data.status);
         }
 
@@ -451,13 +446,13 @@
             badge.innerText = status;
 
             if (status === 'Pendente') {
-                info.innerText = 'Seu pedido foi recebido e aguarda confirmação.';
+                info.innerText = 'O seu pedido foi recebido e aguarda confirmação.';
                 progress.style.width = '25%';
             } else if (status === 'Em Preparo') {
-                info.innerText = 'Sua refeição está sendo montada com carinho!';
+                info.innerText = 'A sua refeição está a ser montada!';
                 progress.style.width = '50%';
             } else if (status === 'Saiu para Entrega') {
-                info.innerText = 'O entregador já está a caminho do seu endereço!';
+                info.innerText = 'O estafeta já está a caminho do seu endereço!';
                 progress.style.width = '75%';
             } else if (status === 'Entregue') {
                 info.innerText = 'Pedido entregue. Bom apetite!';
@@ -465,17 +460,15 @@
             }
         }
 
-        /* ================= CARREGAMENTO DA ÁREA ADM ================= */
         function handleLogin(e) {
             e.preventDefault();
             const password = document.getElementById('admin-password').value;
-            // Senha simples para fins demonstrativos (Personalize aqui)
             if (password === 'admin123') {
                 document.getElementById('admin-login-card').classList.add('hidden');
                 document.getElementById('admin-content').classList.remove('hidden');
                 loadAdminData();
             } else {
-                alert('Senha incorreta!');
+                alert('Palavra-passe incorreta!');
             }
         }
 
@@ -484,7 +477,7 @@
             document.getElementById('admin-content').classList.add('hidden');
         }
 
-        async function loadAdminData() {
+        function loadAdminData() {
             loadAdminOrders();
             loadAdminDashboard();
             loadAdminMenuItems();
@@ -492,7 +485,7 @@
         }
 
         async function loadAdminOrders() {
-            const { data: orders } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
+            const { data: orders } = await supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
             const tbody = document.getElementById('admin-orders-table');
             tbody.innerHTML = '';
 
@@ -509,7 +502,7 @@
                         <td class="p-2 text-xs">${itemsStr}</td>
                         <td class="p-2 text-xs">${order.delivery_address}</td>
                         <td class="p-2 text-xs">${order.needs_disposable ? 'Sim' : 'Não'}</td>
-                        <td class="p-2 font-bold text-red-700">R$ ${order.total_price.toFixed(2)}</td>
+                        <td class="p-2 font-bold text-red-700">R$ ${Number(order.total_price).toFixed(2)}</td>
                         <td class="p-2">
                             <select onchange="updateOrderStatus('${order.id}', this.value)" class="border text-xs rounded p-1">
                                 <option value="Pendente" ${order.status === 'Pendente' ? 'selected' : ''}>Pendente</option>
@@ -527,21 +520,21 @@
         }
 
         async function updateOrderStatus(id, status) {
-            await supabase.from('orders').update({ status }).eq('id', id);
+            await supabaseClient.from('orders').update({ status }).eq('id', id);
             loadAdminDashboard();
         }
 
         async function deleteOrder(id) {
-            if (confirm('Deseja excluir este pedido?')) {
-                await supabase.from('orders').delete().eq('id', id);
+            if (confirm('Deseja eliminar este pedido?')) {
+                await supabaseClient.from('orders').delete().eq('id', id);
                 loadAdminOrders();
             }
         }
 
         async function loadAdminDashboard() {
             const today = new Date().toISOString().split('T')[0];
-            const { data: orders } = await supabase.from('orders').select('*').gte('created_at', today);
-            const { data: expenses } = await supabase.from('expenses').select('*').gte('created_at', today);
+            const { data: orders } = await supabaseClient.from('orders').select('*').gte('created_at', today);
+            const { data: expenses } = await supabaseClient.from('expenses').select('*').gte('created_at', today);
 
             let totalSales = 0;
             let totalMarmitas = 0;
@@ -549,14 +542,12 @@
             let espetoCounts = {};
 
             orders?.forEach(o => {
-                totalSales += o.total_price;
+                totalSales += Number(o.total_price);
                 totalMarmitas += 1;
 
-                // Contagem do tamanho
                 const size = o.items.marmita_size;
                 sizeCounts[size] = (sizeCounts[size] || 0) + 1;
 
-                // Contagem de espetos
                 o.items.extras?.forEach(e => {
                     if (e.name.toLowerCase().includes('espeto')) {
                         espetoCounts[e.name] = (espetoCounts[e.name] || 0) + e.qty;
@@ -564,14 +555,13 @@
                 });
             });
 
-            let totalExpenses = expenses?.reduce((acc, curr) => acc + curr.amount, 0) || 0;
+            let totalExpenses = expenses?.reduce((acc, curr) => acc + Number(curr.amount), 0) || 0;
 
             document.getElementById('dash-sales').innerText = `R$ ${totalSales.toFixed(2)}`;
             document.getElementById('dash-expenses').innerText = `R$ ${totalExpenses.toFixed(2)}`;
             document.getElementById('dash-profit').innerText = `R$ ${(totalSales - totalExpenses).toFixed(2)}`;
             document.getElementById('dash-marmitas-count').innerText = totalMarmitas;
 
-            // Encontrar mais vendida
             const topSize = Object.keys(sizeCounts).reduce((a, b) => sizeCounts[a] > sizeCounts[b] ? a : b, '-');
             const topEspeto = Object.keys(espetoCounts).reduce((a, b) => espetoCounts[a] > espetoCounts[b] ? a : b, '-');
 
@@ -597,13 +587,12 @@
                 Custo do Insumo por Marmita: <b>R$ ${costPerPortion.toFixed(2)}</b>
             `;
 
-            // Opcional: Salvar como gasto automático
-            supabase.from('inventory').insert([{ item_name: name, cost_price: cost, quantity_bought_g: qtyG, portion_per_marmita_g: portionG }]);
-            supabase.from('expenses').insert([{ description: `Compra de Insumo: ${name}`, amount: cost }]);
+            supabaseClient.from('inventory').insert([{ item_name: name, cost_price: cost, quantity_bought_g: qtyG, portion_per_marmita_g: portionG }]);
+            supabaseClient.from('expenses').insert([{ description: `Compra de Insumo: ${name}`, amount: cost }]);
         }
 
         async function loadAdminMenuItems() {
-            const { data: items } = await supabase.from('menu_items').select('*').order('name');
+            const { data: items } = await supabaseClient.from('menu_items').select('*').order('name');
             const container = document.getElementById('admin-menu-items');
             container.innerHTML = '';
 
@@ -620,7 +609,7 @@
         }
 
         async function toggleItemActive(id, active) {
-            await supabase.from('menu_items').update({ active }).eq('id', id);
+            await supabaseClient.from('menu_items').update({ active }).eq('id', id);
             loadAdminMenuItems();
             loadClientView();
         }
@@ -632,21 +621,21 @@
 
             if (!name) return alert('Informe o nome do item');
 
-            await supabase.from('menu_items').insert([{ name, category, price, active: true }]);
+            await supabaseClient.from('menu_items').insert([{ name, category, price, active: true }]);
             document.getElementById('new-item-name').value = '';
             loadAdminMenuItems();
             loadClientView();
         }
 
         async function loadAdminSizes() {
-            const { data: sizes } = await supabase.from('marmita_sizes').select('*');
+            const { data: sizes } = await supabaseClient.from('marmita_sizes').select('*');
             const container = document.getElementById('admin-marmita-sizes');
             container.innerHTML = '';
 
             sizes?.forEach(size => {
                 container.innerHTML += `
                     <div class="flex items-center justify-between p-2 border rounded-lg bg-white">
-                        <span class="text-sm font-medium">${size.name} - R$ ${size.price.toFixed(2)}</span>
+                        <span class="text-sm font-medium">${size.name} - R$ ${Number(size.price).toFixed(2)}</span>
                         <button onclick="toggleSizeActive('${size.id}', ${!size.active})" class="text-xs px-2 py-1 rounded font-bold ${size.active ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}">
                             ${size.active ? 'Desativar' : 'Ativar'}
                         </button>
@@ -656,7 +645,7 @@
         }
 
         async function toggleSizeActive(id, active) {
-            await supabase.from('marmita_sizes').update({ active }).eq('id', id);
+            await supabaseClient.from('marmita_sizes').update({ active }).eq('id', id);
             loadAdminSizes();
             loadClientView();
         }
@@ -668,7 +657,7 @@
 
             if (!name || !capacity_ml || !price) return alert('Preencha os dados do tamanho.');
 
-            await supabase.from('marmita_sizes').insert([{ name, capacity_ml, price, active: true }]);
+            await supabaseClient.from('marmita_sizes').insert([{ name, capacity_ml, price, active: true }]);
             loadAdminSizes();
             loadClientView();
         }
@@ -679,7 +668,7 @@
 
             if (!description || !amount) return alert('Preencha a descrição e valor do gasto.');
 
-            await supabase.from('expenses').insert([{ description, amount }]);
+            await supabaseClient.from('expenses').insert([{ description, amount }]);
             document.getElementById('expense-desc').value = '';
             document.getElementById('expense-amount').value = '';
             loadAdminDashboard();
