@@ -1,621 +1,443 @@
-import React, { useState, useEffect } from 'react';
-import { supabase } from './supabaseClient';
-import { 
-  UtensilsCrossed, 
-  ShoppingBag, 
-  MapPin, 
-  Truck, 
-  CheckCircle2, 
-  Clock, 
-  Flame, 
-  Plus, 
-  Minus, 
-  Check, 
-  ArrowRight,
-  PackageCheck
-} from 'lucide-react';
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Marmitaria Popular CG - Monte seu Pedido</title>
+  
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Supabase JS Client via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <style>
+    /* Estilização para transição suave de telas */
+    .view-screen { display: none; }
+    .view-screen.active { display: block; }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans min-h-screen">
 
-export default function ClienteApp() {
-  // Estados para dados do banco
-  const [tamanhos, setTamanhos] = useState([]);
-  const [ingredientes, setIngredientes] = useState([]);
-  const [espetos, setEspetos] = useState([]);
-  const [bebidas, setBebidas] = useState([]);
-  const [loading, setLoading] = useState(true);
+  <!-- CABEÇALHO -->
+  <header class="bg-red-700 text-white shadow-lg sticky top-0 z-50">
+    <div class="max-w-2xl mx-auto px-4 py-4 flex justify-between items-center">
+      <div>
+        <h1 class="text-xl font-bold">Marmitaria Popular CG</h1>
+        <p class="text-xs text-red-200">Espetos & Marmitas</p>
+      </div>
+      <span class="bg-red-800 text-xs px-2 py-1 rounded text-red-100 border border-red-600">Aberto</span>
+    </div>
+  </header>
 
-  // Estados da montagem da marmita
-  const [tamanhoSelecionado, setTamanhoSelecionado] = useState(null);
-  const [ingredientesSelecionados, setIngredientesSelecionados] = useState([]);
-  const [espetosSelecionados, setEspetosSelecionados] = useState({});
-  const [bebidasSelecionadas, setBebidasSelecionadas] = useState({});
-  const [usarDescartavel, setUsarDescartavel] = useState(true);
+  <main class="max-w-2xl mx-auto px-4 py-6">
 
-  // Estados de formulário do cliente
-  const [nomeCliente, setNomeCliente] = useState('');
-  const [telefone, setTelefone] = useState('');
-  const [tipoEntrega, setTipoEntrega] = useState('entrega'); // 'entrega' ou 'retirada'
-  const [endereco, setEndereco] = useState('');
-  const [observacoes, setObservacoes] = useState('');
+    <!-- TELA 1: FORMULÁRIO DE PEDIDO -->
+    <div id="screen-order" class="view-screen active">
+      <form id="order-form" onsubmit="submitOrder(event)" class="space-y-6">
 
-  // Estados de fluxo do pedido
-  const [pedidoRealizado, setPedidoRealizado] = useState(null);
-  const [statusPedido, setStatusPedido] = useState('pendente');
-  const [enviando, setEnviando] = useState(false);
+        <!-- 1. Seleção do Tamanho da Marmita -->
+        <section class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+          <h2 class="text-lg font-bold text-gray-900 mb-3 border-b pb-2 flex items-center gap-2">
+            <span>🍱</span> 1. Escolha o Tamanho da Marmita
+          </h2>
+          <div id="marmita-sizes" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <p class="text-sm text-gray-500 italic">Carregando tamanhos disponíveis...</p>
+          </div>
+        </section>
 
-  // Carregar dados ativos do Supabase
-  useEffect(() => {
-    fetchDados();
-  }, []);
+        <!-- 2. Itens da Marmita (Proteínas, Acompanhamentos, Saladas) -->
+        <section class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+          <h2 class="text-lg font-bold text-gray-900 mb-3 border-b pb-2 flex items-center gap-2">
+            <span>🥗</span> 2. Monte sua Marmita
+          </h2>
+          <div id="marmita-items" class="space-y-4">
+            <p class="text-sm text-gray-500 italic">Carregando acompanhamentos...</p>
+          </div>
+        </section>
 
-  // Inscrição Supabase Realtime para acompanhar status do pedido se houver um id de pedido
-  useEffect(() => {
-    if (!pedidoRealizado?.id) return;
+        <!-- 3. Espetinhos e Adicionais -->
+        <section class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+          <h2 class="text-lg font-bold text-gray-900 mb-3 border-b pb-2 flex items-center gap-2">
+            <span>🍢</span> 3. Espetinhos & Bebidas
+          </h2>
+          <div id="extra-items" class="space-y-3">
+            <p class="text-sm text-gray-500 italic">Carregando espetos e bebidas...</p>
+          </div>
+        </section>
 
-    const channel = supabase
-      .channel(`pedido-${pedidoRealizado.id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'pedidos',
-          filter: `id=eq.${pedidoRealizado.id}`,
-        },
-        (payload) => {
-          if (payload.new && payload.new.status) {
-            setStatusPedido(payload.new.status);
-          }
-        }
-      )
-      .subscribe();
+        <!-- 4. Opções e Talheres Descartáveis -->
+        <section class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+          <h2 class="text-lg font-bold text-gray-900 mb-3 border-b pb-2 flex items-center gap-2">
+            <span>🍴</span> 4. Preferências
+          </h2>
+          <label class="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-gray-50">
+            <input type="checkbox" id="descartavel" class="w-5 h-5 text-red-600 rounded focus:ring-red-500">
+            <span class="text-sm font-medium text-gray-700">Deseja talheres e recipiente descartável?</span>
+          </label>
+        </section>
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [pedidoRealizado]);
+        <!-- 5. Dados do Cliente e Entrega -->
+        <section class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 space-y-4">
+          <h2 class="text-lg font-bold text-gray-900 border-b pb-2 flex items-center gap-2">
+            <span>📍</span> 5. Dados de Entrega
+          </h2>
+          
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Seu Nome *</label>
+            <input type="text" id="cliente-nome" required placeholder="Ex: João Silva" class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-red-500 outline-none">
+          </div>
 
-  const fetchDados = async () => {
-    setLoading(true);
-    try {
-      // Buscar Tamanhos
-      const { data: dataTamanhos } = await supabase
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">WhatsApp / Telefone *</label>
+            <input type="tel" id="cliente-telefone" required placeholder="Ex: (83) 99999-8888" class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-red-500 outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Forma de Recebimento *</label>
+            <div class="flex gap-4 mt-1">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="tipo_entrega" value="entrega" checked onchange="toggleEndereco(true)">
+                <span class="text-sm">Entrega em Domicílio</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="tipo_entrega" value="retirada" onchange="toggleEndereco(false)">
+                <span class="text-sm">Retirar no Local</span>
+              </label>
+            </div>
+          </div>
+
+          <div id="field-endereco">
+            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Endereço Completo com Ponto de Referência *</label>
+            <textarea id="cliente-endereco" rows="2" placeholder="Rua, número, bairro e ponto de referência" class="w-full border rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-red-500 outline-none"></textarea>
+          </div>
+        </section>
+
+        <!-- Resumo do Preço e Submissão -->
+        <div class="sticky bottom-4 bg-gray-900 text-white p-4 rounded-xl shadow-2xl flex justify-between items-center">
+          <div>
+            <span class="text-xs text-gray-400 block">Total do Pedido:</span>
+            <span id="total-price" class="text-2xl font-black text-green-400">R$ 0,00</span>
+          </div>
+          <button type="submit" id="btn-submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg text-sm transition">
+            Enviar Pedido
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- TELA 2: ACOMPANHAMENTO DE ENTREGA -->
+    <div id="screen-status" class="view-screen bg-white p-6 rounded-xl shadow-sm border border-gray-200 text-center space-y-6">
+      <div class="border-b pb-4">
+        <h2 class="text-xl font-bold text-gray-900">Acompanhamento do Pedido</h2>
+        <p class="text-xs text-gray-500 mt-1">Código do Pedido: <span id="status-order-id" class="font-mono font-bold text-gray-700"></span></p>
+      </div>
+
+      <!-- Barra de Progresso do Status -->
+      <div class="space-y-4 py-4">
+        <div id="step-recebido" class="flex items-center gap-3 p-3 rounded-lg bg-gray-100">
+          <span class="text-2xl">📝</span>
+          <div class="text-left">
+            <p class="font-bold text-sm">Pedido Recebido</p>
+            <p class="text-xs text-gray-500">Seu pedido foi registrado na cozinha.</p>
+          </div>
+        </div>
+
+        <div id="step-em_preparo" class="flex items-center gap-3 p-3 rounded-lg bg-gray-100">
+          <span class="text-2xl">👨‍🍳</span>
+          <div class="text-left">
+            <p class="font-bold text-sm">Em Preparo</p>
+            <p class="text-xs text-gray-500">Sua quentinha/espeto está sendo montado.</p>
+          </div>
+        </div>
+
+        <div id="step-saiu_para_entrega" class="flex items-center gap-3 p-3 rounded-lg bg-gray-100">
+          <span class="text-2xl">🛵</span>
+          <div class="text-left">
+            <p class="font-bold text-sm">Saiu para Entrega</p>
+            <p class="text-xs text-gray-500">O entregador está a caminho do seu endereço!</p>
+          </div>
+        </div>
+
+        <div id="step-entregue" class="flex items-center gap-3 p-3 rounded-lg bg-gray-100">
+          <span class="text-2xl">✅</span>
+          <div class="text-left">
+            <p class="font-bold text-sm">Pedido Entregue</p>
+            <p class="text-xs text-gray-500">Bom apetite!</p>
+          </div>
+        </div>
+      </div>
+
+      <button onclick="window.location.reload()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs font-bold py-2 px-4 rounded-lg">
+        Fazer Novo Pedido
+      </button>
+    </div>
+
+  </main>
+
+  <script>
+    // ===================================================
+    // 1. CONFIGURAÇÃO DO SUPABASE
+    // (Substitua com a sua URL e Anon Key do Supabase)
+    // ===================================================
+    const SUPABASE_URL = "https://SEU_PROJETO.supabase.co";
+    const SUPABASE_ANON_KEY = "SUA_CHAVE_ANONIMA_AQUI";
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Estado local da aplicação
+    let selectedSizePrice = 0;
+    let selectedSizeId = null;
+    let itemsState = {}; // Guarda IDs e quantidades dos espetos e adicionais
+
+    // Inicialização da tela
+    document.addEventListener("DOMContentLoaded", () => {
+      loadSizes();
+      loadMenu();
+    });
+
+    // Alternar exibição do campo de endereço
+    function toggleEndereco(show) {
+      const field = document.getElementById("field-endereco");
+      const input = document.getElementById("cliente-endereco");
+      if (show) {
+        field.style.display = "block";
+        input.required = true;
+      } else {
+        field.style.display = "none";
+        input.required = false;
+      }
+    }
+
+    // ===================================================
+    // 2. CARREGAMENTO DOS DADOS DO BANCO (SUPABASE)
+    // ===================================================
+
+    // Carrega tamanhos de marmita disponíveis
+    async function loadSizes() {
+      const { data, error } = await _supabase
         .from('tamanhos_marmita')
         .select('*')
-        .eq('ativo', true);
+        .eq('disponivel', true);
 
-      // Buscar Ingredientes da Marmita
-      const { data: dataIngredientes } = await supabase
-        .from('produtos')
-        .select('*')
-        .eq('ativo', true)
-        .in('categoria', ['base', 'proteina', 'acompanhamento']);
-
-      // Buscar Espetos com Estoque > 0
-      const { data: dataEspetos } = await supabase
-        .from('espetos')
-        .select('*')
-        .eq('ativo', true)
-        .gt('quantidade_estoque', 0);
-
-      // Buscar Bebidas e Sobremesas
-      const { data: dataBebidas } = await supabase
-        .from('produtos')
-        .select('*')
-        .eq('ativo', true)
-        .in('categoria', ['bebida', 'sobremesa']);
-
-      if (dataTamanhos) setTamanhos(dataTamanhos);
-      if (dataIngredientes) setIngredientes(dataIngredientes);
-      if (dataEspetos) setEspetos(dataEspetos);
-      if (dataBebidas) setBebidas(dataBebidas);
-
-      if (dataTamanhos && dataTamanhos.length > 0) {
-        setTamanhoSelecionado(dataTamanhos[0]);
+      const container = document.getElementById("marmita-sizes");
+      if (error || !data || data.length === 0) {
+        container.innerHTML = `<p class="text-xs text-red-500">Nenhum tamanho disponível no momento.</p>`;
+        return;
       }
-    } catch (err) {
-      console.error('Erro ao carregar cardápio:', err);
-    } finally {
-      setLoading(false);
+
+      container.innerHTML = data.map((size, idx) => `
+        <label class="border-2 rounded-lg p-3 flex items-center justify-between cursor-pointer hover:border-red-500 transition">
+          <div>
+            <div class="flex items-center gap-2">
+              <input type="radio" name="tamanho_marmita" value="${size.id}" data-price="${size.preco_base}" ${idx === 0 ? 'checked' : ''} onchange="updateTotal()" class="text-red-600 focus:ring-red-500">
+              <span class="font-bold text-sm">${size.descricao}</span>
+            </div>
+            <span class="text-xs text-gray-500 ml-5">${size.capacidade_ml}ml</span>
+          </div>
+          <span class="font-bold text-red-700 text-sm">R$ ${parseFloat(size.preco_base).toFixed(2).replace('.', ',')}</span>
+        </label>
+      `).join('');
+
+      updateTotal();
     }
-  };
 
-  // Alternar seleção de ingrediente
-  const toggleIngrediente = (ingrediente) => {
-    if (ingredientesSelecionados.find(i => i.id === ingrediente.id)) {
-      setIngredientesSelecionados(ingredientesSelecionados.filter(i => i.id !== ingrediente.id));
-    } else {
-      setIngredientesSelecionados([...ingredientesSelecionados, ingrediente]);
+    // Carrega acompanhamentos, espetos e adicionais ativos
+    async function loadMenu() {
+      const { data, error } = await _supabase
+        .from('itens_cardapio')
+        .select('*')
+        .eq('disponivel', true);
+
+      if (error || !data) return;
+
+      const containerMarmita = document.getElementById("marmita-items");
+      const containerExtras = document.getElementById("extra-items");
+
+      containerMarmita.innerHTML = "";
+      containerExtras.innerHTML = "";
+
+      // Filtrar itens do acompanhamento vs adicionais/espetos
+      const marmitaItems = data.filter(i => ['acompanhamento', 'proteina', 'salada'].includes(i.categoria));
+      const extraItems = data.filter(i => ['espeto', 'bebida', 'sobremesa'].includes(i.categoria));
+
+      // Renderiza itens para composição da marmita (checkboxes)
+      if (marmitaItems.length > 0) {
+        containerMarmita.innerHTML = marmitaItems.map(item => `
+          <label class="flex items-center justify-between p-2 rounded hover:bg-gray-50 cursor-pointer border-b last:border-b-0">
+            <span class="text-sm font-medium text-gray-800">${item.nome}</span>
+            <input type="checkbox" value="${item.id}" name="marmita_item" class="w-4 h-4 text-red-600 rounded">
+          </label>
+        `).join('');
+      } else {
+        containerMarmita.innerHTML = `<p class="text-xs text-gray-400">Nenhum acompanhamento disponível hoje.</p>`;
+      }
+
+      // Renderiza espetos e bebidas com seletores de quantidade
+      if (extraItems.length > 0) {
+        containerExtras.innerHTML = extraItems.map(item => `
+          <div class="flex items-center justify-between p-2 border-b last:border-b-0">
+            <div>
+              <p class="text-sm font-medium text-gray-800">${item.nome}</p>
+              <p class="text-xs text-red-600 font-semibold">R$ ${parseFloat(item.preco).toFixed(2).replace('.', ',')}</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="changeQty('${item.id}', -1, ${item.preco})" class="w-7 h-7 rounded bg-gray-200 text-gray-800 font-bold hover:bg-gray-300">-</button>
+              <span id="qty-${item.id}" class="text-sm font-bold w-4 text-center">0</span>
+              <button type="button" onclick="changeQty('${item.id}', 1, ${item.preco})" class="w-7 h-7 rounded bg-red-600 text-white font-bold hover:bg-red-700">+</button>
+            </div>
+          </div>
+        `).join('');
+      } else {
+        containerExtras.innerHTML = `<p class="text-xs text-gray-400">Nenhum adicional disponível.</p>`;
+      }
     }
-  };
 
-  // Controle de quantidade de espetos
-  const alterarQtdEspeto = (espetoId, delta) => {
-    setEspetosSelecionados(prev => {
-      const atual = prev[espetoId] || 0;
-      const novo = Math.max(0, atual + delta);
-      if (novo === 0) {
-        const copy = { ...prev };
-        delete copy[espetoId];
-        return copy;
+    // Altera a quantidade de um item adicional
+    function changeQty(itemId, delta, price) {
+      if (!itemsState[itemId]) itemsState[itemId] = { qty: 0, price: price };
+      
+      itemsState[itemId].qty += delta;
+      if (itemsState[itemId].qty < 0) itemsState[itemId].qty = 0;
+
+      document.getElementById(`qty-${itemId}`).innerText = itemsState[itemId].qty;
+      updateTotal();
+    }
+
+    // Re-calcula o total do pedido
+    function updateTotal() {
+      let total = 0;
+
+      // Tamanho da marmita selecionado
+      const selectedSizeRadio = document.querySelector('input[name="tamanho_marmita"]:checked');
+      if (selectedSizeRadio) {
+        selectedSizePrice = parseFloat(selectedSizeRadio.getAttribute('data-price')) || 0;
+        selectedSizeId = selectedSizeRadio.value;
+        total += selectedSizePrice;
       }
-      return { ...prev, [espetoId]: novo };
-    });
-  };
 
-  // Controle de quantidade de bebidas/sobremesas
-  const alterarQtdBebida = (bebidaId, delta) => {
-    setBebidasSelecionadas(prev => {
-      const atual = prev[bebidaId] || 0;
-      const novo = Math.max(0, atual + delta);
-      if (novo === 0) {
-        const copy = { ...prev };
-        delete copy[bebidaId];
-        return copy;
-      }
-      return { ...prev, [bebidaId]: novo };
-    });
-  };
+      // Adicionais e espetos
+      Object.keys(itemsState).forEach(id => {
+        total += itemsState[id].qty * itemsState[id].price;
+      });
 
-  // Cálculo total do pedido
-  const calcularTotal = () => {
-    let total = tamanhoSelecionado ? Number(tamanhoSelecionado.preco_venda) : 0;
+      document.getElementById("total-price").innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+      return total;
+    }
 
-    Object.entries(espetosSelecionados).forEach(([id, qtd]) => {
-      const item = espetos.find(e => e.id === id);
-      if (item) total += Number(item.preco_venda) * qtd;
-    });
+    // ===================================================
+    // 3. ENVIO DO PEDIDO PARA O SUPABASE
+    // ===================================================
 
-    Object.entries(bebidasSelecionadas).forEach(([id, qtd]) => {
-      const item = bebidas.find(b => b.id === id);
-      if (item) total += Number(item.preco_custo || item.preco_venda || 0) * qtd;
-    });
+    async function submitOrder(e) {
+      e.preventDefault();
+      const btn = document.getElementById("btn-submit");
+      btn.disabled = true;
+      btn.innerText = "Enviando...";
 
-    return total;
-  };
+      const total = updateTotal();
+      const nome = document.getElementById("cliente-nome").value;
+      const telefone = document.getElementById("cliente-telefone").value;
+      const tipoEntrega = document.querySelector('input[name="tipo_entrega"]:checked').value;
+      const endereco = tipoEntrega === 'entrega' ? document.getElementById("cliente-endereco").value : "Retirada no Local";
+      const descartavel = document.getElementById("descartavel").checked;
 
-  // Enviar Pedido para o Supabase
-  const finalizarPedido = async (e) => {
-    e.preventDefault();
-    if (!nomeCliente) return alert('Por favor, informe seu nome.');
-    if (tipoEntrega === 'entrega' && !endereco) return alert('Por favor, informe o endereço de entrega.');
-    if (!tamanhoSelecionado) return alert('Selecione o tamanho da sua marmita.');
-
-    setEnviando(true);
-    const total = calcularTotal();
-
-    try {
-      // 1. Criar Registro do Pedido
-      const { data: novoPedido, error: errPedido } = await supabase
+      // 1. Criar Pedido no Supabase
+      const { data: pedido, error: pedidoErr } = await _supabase
         .from('pedidos')
         .insert([{
-          nome_cliente: nomeCliente,
-          telefone_cliente: telefone,
+          cliente_nome: nome,
+          cliente_telefone: telefone,
           tipo_entrega: tipoEntrega,
-          endereco_entrega: tipoEntrega === 'entrega' ? endereco : null,
-          usar_descartavel: usarDescartavel,
-          status: 'pendente',
-          valor_total: total
+          endereco: endereco,
+          descartavel: descartavel,
+          tamanho_marmita_id: selectedSizeId,
+          valor_total: total,
+          status: 'recebido'
         }])
         .select()
         .single();
 
-      if (errPedido) throw errPedido;
+      if (pedidoErr || !pedido) {
+        alert("Erro ao enviar pedido. Tente novamente.");
+        btn.disabled = false;
+        btn.innerText = "Enviar Pedido";
+        return;
+      }
 
-      // 2. Registrar Itens do Pedido
-      const itensParaInserir = [];
+      // 2. Criar os Itens do Pedido (Acompanhamentos da marmita + Espetos/Adicionais)
+      const pedidoItens = [];
 
-      // Item Marmita Monte a Sua
-      const nomesIngredientes = ingredientesSelecionados.map(i => i.nome).join(', ');
-      itensParaInserir.push({
-        pedido_id: novoPedido.id,
-        tamanho_marmita_id: tamanhoSelecionado.id,
-        observacoes: `Ingredientes: ${nomesIngredientes || 'Padrão'}. ${observacoes}`,
-        quantidade: 1
-      });
-
-      // Itens de Espetos
-      Object.entries(espetosSelecionados).forEach(([espetoId, qtd]) => {
-        itensParaInserir.push({
-          pedido_id: novoPedido.id,
-          espeto_id: espetoId,
-          quantidade: qtd
+      // Acompanhamentos selecionados na quentinha
+      const checkboxes = document.querySelectorAll('input[name="marmita_item"]:checked');
+      checkboxes.forEach(cb => {
+        pedidoItens.push({
+          pedido_id: pedido.id,
+          item_id: cb.value,
+          quantidade: 1
         });
       });
 
-      // Itens Bebidas / Sobremesas
-      Object.entries(bebidasSelecionadas).forEach(([bebidaId, qtd]) => {
-        itensParaInserir.push({
-          pedido_id: novoPedido.id,
-          bebida_sobremesa_id: bebidaId,
-          quantidade: qtd
-        });
+      // Espetinhos e Bebidas com quantidade > 0
+      Object.keys(itemsState).forEach(id => {
+        if (itemsState[id].qty > 0) {
+          pedidoItens.push({
+            pedido_id: pedido.id,
+            item_id: id,
+            quantidade: itemsState[id].qty
+          });
+        }
       });
 
-      const { error: errItens } = await supabase
-        .from('pedido_itens')
-        .insert(itensParaInserir);
+      if (pedidoItens.length > 0) {
+        await _supabase.from('pedido_itens').insert(pedidoItens);
+      }
 
-      if (errItens) throw errItens;
-
-      setPedidoRealizado(novoPedido);
-      setStatusPedido('pendente');
-    } catch (err) {
-      console.error('Erro ao enviar pedido:', err);
-      alert('Ocorreu um erro ao enviar seu pedido. Tente novamente.');
-    } finally {
-      setEnviando(false);
+      // Exibe a tela de acompanhamento e inicia a escuta de status em tempo real
+      startTrackingOrder(pedido.id);
     }
-  };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-orange-50 flex items-center justify-center p-4">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-orange-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-orange-800 font-semibold">Carregando cardápio da Marmitaria Popular CG...</p>
-        </div>
-      </div>
-    );
-  }
+    // ===================================================
+    // 4. ACOMPANHAMENTO DA ENTREGA EM TEMPO REAL
+    // ===================================================
 
-  // TELA DE ACOMPANHAMENTO DE PEDIDO (TRACKING)
-  if (pedidoRealizado) {
-    const etapas = [
-      { key: 'pendente', label: 'Pedido Recebido', icon: Clock },
-      { key: 'em_preparacao', label: 'Em Preparação', icon: UtensilsCrossed },
-      { key: 'saiu_para_entrega', label: 'Saiu para Entrega / Pronto', icon: Truck },
-      { key: 'entregue', label: 'Entregue / Concluído', icon: CheckCircle2 }
-    ];
+    function startTrackingOrder(pedidoId) {
+      document.getElementById("screen-order").classList.remove("active");
+      document.getElementById("screen-status").classList.add("active");
+      document.getElementById("status-order-id").innerText = pedidoId.substring(0, 8);
 
-    const getIndiceStatus = (st) => etapas.findIndex(e => e.key === st);
-    const indiceAtual = getIndiceStatus(statusPedido);
+      // Atualiza o status inicial
+      updateStatusUI('recebido');
 
-    return (
-      <div className="min-h-screen bg-slate-50 p-4 md:p-8 flex flex-col items-center">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100">
-          <div className="bg-orange-600 text-white p-6 text-center">
-            <PackageCheck className="w-12 h-12 mx-auto mb-2 text-orange-200" />
-            <h1 className="text-xl font-bold">Marmitaria Popular CG</h1>
-            <p className="text-orange-100 text-sm">Acompanhamento do Pedido #{pedidoRealizado.id.slice(0, 8)}</p>
-          </div>
+      // Escuta atualizações do status do pedido no Supabase Realtime
+      _supabase
+        .channel(`pedido-${pedidoId}`)
+        .on('postgres_changes', {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'pedidos',
+          filter: `id=eq.${pedidoId}`
+        }, payload => {
+          if (payload.new && payload.new.status) {
+            updateStatusUI(payload.new.status);
+          }
+        })
+        .subscribe();
+    }
 
-          <div className="p-6">
-            <div className="mb-6 bg-orange-50 p-4 rounded-xl border border-orange-100">
-              <p className="text-sm text-slate-600"><strong>Cliente:</strong> {pedidoRealizado.nome_cliente}</p>
-              <p className="text-sm text-slate-600"><strong>Modalidade:</strong> {pedidoRealizado.tipo_entrega === 'entrega' ? 'Entrega em Domicílio' : 'Retirada no Local'}</p>
-              {pedidoRealizado.endereco_entrega && (
-                <p className="text-sm text-slate-600"><strong>Endereço:</strong> {pedidoRealizado.endereco_entrega}</p>
-              )}
-              <p className="text-sm font-bold text-orange-800 mt-2">Total: R$ {Number(pedidoRealizado.valor_total).toFixed(2)}</p>
-            </div>
+    // Atualiza a interface de acordo com o status atual do pedido
+    function updateStatusUI(status) {
+      const orderOfStatus = ['recebido', 'em_preparo', 'saiu_para_entrega', 'entregue'];
+      const currentIdx = orderOfStatus.indexOf(status);
 
-            <h3 className="text-base font-bold text-slate-800 mb-4">Status da Entrega:</h3>
-            
-            <div className="space-y-6 relative before:absolute before:inset-0 before:left-[19px] before:w-0.5 before:bg-slate-200">
-              {etapas.map((etapa, idx) => {
-                const Icone = etapa.icon;
-                const ativo = idx <= indiceAtual;
-                const atual = idx === indiceAtual;
-
-                return (
-                  <div key={etapa.key} className="relative flex items-center gap-4 z-10">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white transition-all ${
-                      ativo ? (atual ? 'bg-orange-600 ring-4 ring-orange-100' : 'bg-emerald-600') : 'bg-slate-300'
-                    }`}>
-                      <Icone className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className={`font-semibold text-sm ${ativo ? 'text-slate-900' : 'text-slate-400'}`}>
-                        {etapa.label}
-                      </p>
-                      {atual && <p className="text-xs text-orange-600 font-medium animate-pulse">Status Atual</p>}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <button
-              onClick={() => setPedidoRealizado(null)}
-              className="w-full mt-8 py-3 bg-slate-800 hover:bg-slate-900 text-white font-semibold rounded-xl transition"
-            >
-              Fazer Novo Pedido
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // TELA DE MONTAGEM E COMPRA
-  return (
-    <div className="min-h-screen bg-slate-100 pb-28">
-      {/* Cabeçalho */}
-      <header className="bg-gradient-to-r from-orange-600 to-red-600 text-white p-6 shadow-md">
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-black tracking-wide">Marmitaria Popular CG</h1>
-            <p className="text-orange-100 text-sm flex items-center gap-1 mt-1">
-              <Flame className="w-4 h-4 text-yellow-300 fill-yellow-300" /> Espetos e Marmitas Deliciosas
-            </p>
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-2xl mx-auto p-4 space-y-6 mt-2">
-        {/* Passo 1: Escolha o Tamanho da Marmita */}
-        <section className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
-          <h2 className="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-orange-100 text-orange-600 text-sm flex items-center justify-center font-bold">1</span>
-            Escolha o Tamanho da Marmita
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {tamanhos.map((t) => {
-              const selecionado = tamanhoSelecionado?.id === t.id;
-              return (
-                <button
-                  key={t.id}
-                  onClick={() => setTamanhoSelecionado(t)}
-                  className={`p-4 rounded-xl border-2 text-left transition relative flex flex-col justify-between ${
-                    selecionado 
-                      ? 'border-orange-500 bg-orange-50/50 text-orange-900' 
-                      : 'border-slate-200 hover:border-slate-300 bg-white'
-                  }`}
-                >
-                  {selecionado && (
-                    <span className="absolute top-3 right-3 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center text-white">
-                      <Check className="w-3 h-3" />
-                    </span>
-                  )}
-                  <div>
-                    <h3 className="font-bold text-base text-slate-800">{t.nome}</h3>
-                    <p className="text-xs text-slate-500 mt-1">{t.capacidade_ml} ml</p>
-                  </div>
-                  <p className="font-extrabold text-orange-600 mt-3 text-lg">
-                    R$ {Number(t.preco_venda).toFixed(2)}
-                  </p>
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Passo 2: Monte sua Marmita */}
-        <section className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
-          <h2 className="text-lg font-bold text-slate-800 mb-1 flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-orange-100 text-orange-600 text-sm flex items-center justify-center font-bold">2</span>
-            Monte sua Marmita
-          </h2>
-          <p className="text-xs text-slate-500 mb-4 pl-8">Selecione os itens que deseja incluir no seu recipiente:</p>
-
-          <div className="space-y-2">
-            {ingredientes.map((item) => {
-              const marcado = ingredientesSelecionados.some(i => i.id === item.id);
-              return (
-                <div
-                  key={item.id}
-                  onClick={() => toggleIngrediente(item)}
-                  className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition ${
-                    marcado ? 'border-orange-500 bg-orange-50/30' : 'border-slate-200 hover:bg-slate-50'
-                  }`}
-                >
-                  <span className="font-medium text-slate-700 text-sm capitalize">{item.nome}</span>
-                  <div className={`w-5 h-5 rounded border flex items-center justify-center transition ${
-                    marcado ? 'bg-orange-600 border-orange-600 text-white' : 'border-slate-300'
-                  }`}>
-                    {marcado && <Check className="w-3 h-3" />}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Passo 3: Adicionar Espetos */}
-        {espetos.length > 0 && (
-          <section className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
-            <h2 className="text-lg font-bold text-slate-800 mb-1 flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-orange-100 text-orange-600 text-sm flex items-center justify-center font-bold">3</span>
-              Adicionar Espetos
-            </h2>
-            <p className="text-xs text-slate-500 mb-4 pl-8">Escolha os sabores de espetinhos para acompanhar:</p>
-
-            <div className="space-y-3">
-              {espetos.map((esp) => {
-                const qtd = espetosSelecionados[esp.id] || 0;
-                return (
-                  <div key={esp.id} className="flex items-center justify-between p-3 border border-slate-200 rounded-xl">
-                    <div>
-                      <h4 className="font-semibold text-slate-800 text-sm">{esp.sabor}</h4>
-                      <p className="text-xs text-orange-600 font-bold">R$ {Number(esp.preco_venda).toFixed(2)}</p>
-                    </div>
-
-                    <div className="flex items-center gap-3 bg-slate-100 p-1 rounded-lg">
-                      <button
-                        onClick={() => alterarQtdEspeto(esp.id, -1)}
-                        className="w-7 h-7 bg-white rounded-md flex items-center justify-center text-slate-700 shadow-sm disabled:opacity-50"
-                        disabled={qtd === 0}
-                      >
-                        <Minus className="w-3 h-3" />
-                      </button>
-                      <span className="font-bold text-sm w-4 text-center">{qtd}</span>
-                      <button
-                        onClick={() => alterarQtdEspeto(esp.id, 1)}
-                        className="w-7 h-7 bg-white rounded-md flex items-center justify-center text-slate-700 shadow-sm"
-                      >
-                        <Plus className="w-3 h-3" />
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        )}
-
-        {/* Passo 4: Bebidas & Sobremesas */}
-        {bebidas.length > 0 && (
-          <section className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
-            <h2 className="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
-              <span className="w-6 h-6 rounded-full bg-orange-100 text-orange-600 text-sm flex items-center justify-center font-bold">4</span>
-              Bebidas & Sobremesas
-            </h2>
-
-            <div className="space-y-3">
-              {bebidas.map((beb) => {
-                const qtd = bebidasSelecionadas[beb.id] || 0;
-                const preco = beb.preco_custo || beb.preco_venda || 0;
-                return (
-                  <div key={beb.id} className="flex items-center justify-between p-3 border border-slate-200 rounded-xl">
-                    <div>
-                      <h4 className="font-semibold text-slate-800 text-sm">{beb.nome}</h4>
-                      <p className="text-xs text-orange-600 font-bold">R$ {Number(preco).toFixed(2)}</p>
-                    </div>
-
-                    <div className="flex items-center gap-3 bg-slate-100 p-1 rounded-lg">
-                      <button
-                        onClick={() => alterarQtdBebida(beb.id, -1)}
-                        className="w-7 h-7 bg-white rounded-md flex items-center justify-center text-slate-700 shadow-sm disabled:opacity-50"
-                        disabled={qtd === 0}
-                      >
-                        <Minus className="w-3 h-3" />
-                      </button>
-                      <span className="font-bold text-sm w-4 text-center">{qtd}</span>
-                      <button
-                        onClick={() => alterarQtdBebida(beb.id, 1)}
-                        className="w-7 h-7 bg-white rounded-md flex items-center justify-center text-slate-700 shadow-sm"
-                      >
-                        <Plus className="w-3 h-3" />
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        )}
-
-        {/* Passo 5: Opção Descartável & Dados de Entrega */}
-        <section className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-4">
-          <h2 className="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
-            <span className="w-6 h-6 rounded-full bg-orange-100 text-orange-600 text-sm flex items-center justify-center font-bold">5</span>
-            Dados do Pedido & Entrega
-          </h2>
-
-          {/* Seleção Descartável */}
-          <label className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer border border-slate-200">
-            <input
-              type="checkbox"
-              checked={usarDescartavel}
-              onChange={(e) => setUsarDescartavel(e.target.checked)}
-              className="w-5 h-5 text-orange-600 rounded focus:ring-orange-500"
-            />
-            <div>
-              <p className="font-semibold text-sm text-slate-800">Deseja embalagem/talheres descartáveis?</p>
-              <p className="text-xs text-slate-500">Envio de talheres plásticos e guardanapos</p>
-            </div>
-          </label>
-
-          {/* Modalidade */}
-          <div className="grid grid-cols-2 gap-3 pt-2">
-            <button
-              type="button"
-              onClick={() => setTipoEntrega('entrega')}
-              className={`p-3 rounded-xl border font-semibold text-sm flex items-center justify-center gap-2 ${
-                tipoEntrega === 'entrega' ? 'border-orange-500 bg-orange-50 text-orange-700' : 'border-slate-200 text-slate-600'
-              }`}
-            >
-              <Truck className="w-4 h-4" /> Entrega
-            </button>
-            <button
-              type="button"
-              onClick={() => setTipoEntrega('retirada')}
-              className={`p-3 rounded-xl border font-semibold text-sm flex items-center justify-center gap-2 ${
-                tipoEntrega === 'retirada' ? 'border-orange-500 bg-orange-50 text-orange-700' : 'border-slate-200 text-slate-600'
-              }`}
-            >
-              <ShoppingBag className="w-4 h-4" /> Retirada
-            </button>
-          </div>
-
-          {/* Formulário */}
-          <div className="space-y-3 pt-2">
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Seu Nome *</label>
-              <input
-                type="text"
-                value={nomeCliente}
-                onChange={(e) => setNomeCliente(e.target.value)}
-                placeholder="Ex: Maria Silva"
-                className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500 outline-none"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Telefone / WhatsApp</label>
-              <input
-                type="tel"
-                value={telefone}
-                onChange={(e) => setTelefone(e.target.value)}
-                placeholder="(83) 98888-8888"
-                className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500 outline-none"
-              />
-            </div>
-
-            {tipoEntrega === 'entrega' && (
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Endereço Completo de Entrega *</label>
-                <textarea
-                  value={endereco}
-                  onChange={(e) => setEndereco(e.target.value)}
-                  placeholder="Rua, Número, Bairro, Ponto de referência em Campina Grande"
-                  className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500 outline-none h-20"
-                  required
-                />
-              </div>
-            )}
-
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Observações do Pedido</label>
-              <input
-                type="text"
-                value={observacoes}
-                onChange={(e) => setObservacoes(e.target.value)}
-                placeholder="Ex: Pouco sal, feijão separado, etc."
-                className="w-full p-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-orange-500 outline-none"
-              />
-            </div>
-          </div>
-        </section>
-      </main>
-
-      {/* Barra de Ação Fixa Inferior */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-4 shadow-2xl z-50">
-        <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
-          <div>
-            <p className="text-xs text-slate-500">Valor Total</p>
-            <p className="text-2xl font-black text-orange-600">
-              R$ {calcularTotal().toFixed(2)}
-            </p>
-          </div>
-
-          <button
-            onClick={finalizarPedido}
-            disabled={enviando}
-            className="flex-1 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white py-3 px-6 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition disabled:opacity-50"
-          >
-            {enviando ? (
-              <span className="text-sm">Enviando Pedido...</span>
-            ) : (
-              <>
-                <span>Confirmar Pedido</span>
-                <ArrowRight className="w-5 h-5" />
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
+      orderOfStatus.forEach((st, idx) => {
+        const el = document.getElementById(`step-${st}`);
+        if (idx <= currentIdx) {
+          el.className = "flex items-center gap-3 p-3 rounded-lg bg-green-100 border border-green-300 text-green-900";
+        } else {
+          el.className = "flex items-center gap-3 p-3 rounded-lg bg-gray-100 text-gray-400 opacity-50";
+        }
+      });
+    }
+  </script>
+</body>
+</html>
