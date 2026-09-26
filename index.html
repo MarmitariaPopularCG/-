@@ -12,10 +12,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gray-100 font-sans min-h-screen">
-<!-- Cabeçalho Vermelho -->
+
+<!-- Cabeçalho Vermelho do Topo (COM o clique secreto) -->
 <header class="bg-red-800 text-white shadow-md">
     <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
-        <!-- Título com o clique secreto de 3 toques -->
         <div onclick="secretAdminClick()" class="cursor-pointer select-none">
             <h1 class="text-xl font-bold text-white"><i class="fa-solid fa-utensils mr-2"></i>Marmitaria Popular CG</h1>
             <p class="text-xs text-red-200">Espetos e Marmitas</p>
@@ -681,7 +681,6 @@
             document.getElementById('expense-amount').value = '';
             loadAdminDashboard();
         }
-       // Função dos 3 cliques para abrir o Painel ADM
 let secretClicks = 0;
 let clickTimer;
 
@@ -691,7 +690,7 @@ function secretAdminClick() {
     
     if (secretClicks >= 3) {
         secretClicks = 0;
-        toggleView(); // Abre a área de login/painel
+        toggleView();
     } else {
         clickTimer = setTimeout(() => { secretClicks = 0; }, 1000);
     }
