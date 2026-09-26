@@ -687,6 +687,20 @@ function secretAdminClick() {
         clickTimer = setTimeout(() => { secretClicks = 0; }, 1000);
     }
 }
+        async function loadMenuItems() {
+    const { data, error } = await supabase
+        .from('menu_items')
+        .select('*')
+        .order('category', { ascending: true }) // Ordena por categoria primeiro
+        .order('name', { ascending: true });    // Depois por ordem alfabética (coloca Feijão Preto ao lado de Feijão Carioca)
+
+    if (error) {
+        console.error('Erro ao carregar cardápio:', error);
+        return;
+    }
+
+    renderMenuItems(data);
+}
     
     </script>
 </body>
