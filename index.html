@@ -261,6 +261,32 @@
         let selectedExtras = {};
         let activeOrderId = localStorage.getItem('activeOrderId') || null;
 
+        async function checkActiveOrder() {
+    const activeOrderId = localStorage.getItem('activeOrderId');
+    if (!activeOrderId) return;
+
+    // Busca o status atualizado do pedido no Supabase
+    const { data: order, error } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('id', activeOrderId)
+        .single();
+
+    if (error || !order) return;
+
+    // SE O PEDIDO JÁ FOI ENTREGUE, LIMPA E OCULTA:
+    if (order.status === 'Entregue') {
+        localStorage.removeItem('activeOrderId');
+        const trackingCard = document.getElementById('tracking-card');
+        if (trackingCard) {
+            trackingCard.classList.add('hidden');
+        }
+    } else {
+        // Se ainda estiver em andamento, mostra o acompanhamento
+        updateTrackingUI(order);
+    }
+}
+
         document.addEventListener('DOMContentLoaded', () => {
             loadClientView();
             if (activeOrderId) {
