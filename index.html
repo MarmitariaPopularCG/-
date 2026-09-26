@@ -39,6 +39,16 @@
             </div>
         </div>
 
+        <!-- Adicione a classe 'hidden' ao botão para ocultá-lo -->
+<button id="nav-toggle-btn" onclick="toggleView()" class="hidden bg-red-900 hover:bg-red-800 text-white text-xs px-3 py-2 rounded-lg border border-red-500 transition flex items-center gap-1">
+    <i class="fa-solid fa-lock"></i> <span>Painel ADM</span>
+</button>
+        <!-- Adicione onclick="secretAdminClick()" no elemento do título/logótipo -->
+<div onclick="secretAdminClick()" class="cursor-pointer select-none">
+    <h1 class="text-xl font-bold"><i class="fa-solid fa-utensils mr-2"></i>Marmitaria Popular CG</h1>
+    <p class="text-xs text-red-200">Espetos e Marmitas</p>
+</div>
+
         <!-- Passo 1: Escolha do Tamanho da Marmita -->
         <section class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
             <h2 class="text-lg font-bold text-gray-800 mb-3 border-b pb-2"><span class="bg-red-700 text-white rounded-full px-2 py-0.5 text-xs mr-2">1</span> Escolha o Tamanho da Marmita</h2>
@@ -673,6 +683,22 @@
             document.getElementById('expense-amount').value = '';
             loadAdminDashboard();
         }
+        // Controlo do clique secreto no logótipo (3 cliques rápidos para abrir o ADM)
+    let secretClicks = 0;
+    let clickTimer;
+
+    function secretAdminClick() {
+    secretClicks++;
+    clearTimeout(clickTimer);
+    
+    if (secretClicks >= 3) {
+        secretClicks = 0;
+        toggleView(); // Dispara a função que exibe a tela de login do ADM
+    } else {
+        // Reseta o contador se demorar mais de 1 segundo entre os cliques
+        clickTimer = setTimeout(() => { secretClicks = 0; }, 1000);
+    }
+}
     </script>
 </body>
 </html>
