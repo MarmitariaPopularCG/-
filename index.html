@@ -261,10 +261,37 @@
         let selectedExtras = {};
         let activeOrderId = localStorage.getItem('activeOrderId') || null;
 
-        async function checkActiveOrder() {
+       // 1. Definição da função que consulta e limpa o pedido
+async function checkActiveOrder() {
     const activeOrderId = localStorage.getItem('activeOrderId');
     if (!activeOrderId) return;
 
+    // Busca o estado atualizado do pedido no Supabase
+    const { data: order, error } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('id', activeOrderId)
+        .single();
+
+    if (error || !order) return;
+
+    // Se já foi entregue, limpa o registro e esconde o cartão
+    if (order.status === 'Entregue') {
+        localStorage.removeItem('activeOrderId');
+        const trackingCard = document.getElementById('tracking-card');
+        if (trackingCard) {
+            trackingCard.classList.add('hidden');
+        }
+    } else {
+        updateTrackingUI(order);
+    }
+}
+
+// 2. Escutador do evento (FORA e ABAIXO da função)
+document.addEventListener('DOMContentLoaded', () => {
+    checkActiveOrder();
+});
+    
     // Busca o status atualizado do pedido no Supabase
     const { data: order, error } = await supabase
         .from('orders')
