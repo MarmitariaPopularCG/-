@@ -434,7 +434,18 @@
 
             const { data } = await supabaseClient.from('orders').select('status').eq('id', orderId).single();
             if (data) updateTrackingUI(data.status);
+
+        // Se o pedido foi entregue, remove da memória e oculta o cartão
+            if (order.status === 'Entregue') {
+        localStorage.removeItem('activeOrderId');
+        trackingCard.classList.add('hidden');
+        return;
+    }
+
+        // Caso contrário, mostra o cartão e atualiza as informações
+        trackingCard.classList.remove('hidden');
         }
+        
 
         function updateTrackingUI(status) {
             const badge = document.getElementById('tracking-status-badge');
@@ -456,16 +467,9 @@
                 info.innerText = 'Pedido entregue. Bom apetite!';
                 progress.style.width = '100%';
             }
-            (order.status === 'Entregue') {
-        localStorage.removeItem('activeOrderId');
-        trackingCard.classList.add('hidden');
-        return;
-        }
-
-        // Se o pedido ainda estiver em andamento, mostra o cartão e atualiza o estado
-        trackingCard.classList.remove('hidden');
         }
         
+
         function handleLogin(e) {
     e.preventDefault();
     const password = document.getElementById('admin-password').value;
@@ -681,12 +685,12 @@
             document.getElementById('expense-amount').value = '';
             loadAdminDashboard();
         }
-let secretClicks = 0;
-let clickTimer;
+        let secretClicks = 0;
+        let clickTimer;
 
-function secretAdminClick() {
-    secretClicks++;
-    clearTimeout(clickTimer);
+        function secretAdminClick() {
+        secretClicks++;
+        clearTimeout(clickTimer);
     
     if (secretClicks >= 3) {
         secretClicks = 0;
