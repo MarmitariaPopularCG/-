@@ -694,17 +694,17 @@
     }
 }
         async function loadMenuItems() {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from('menu_items')
         .select('*')
-        .order('category', { ascending: true }) // Ordena por categoria primeiro
-        .order('name', { ascending: true });    // Depois por ordem alfabética (coloca Feijão Preto ao lado de Feijão Carioca)
+        .order('name', { ascending: true }); // <--- Adicione esta linha aqui
 
     if (error) {
-        console.error('Erro ao carregar cardápio:', error);
+        console.error('Erro ao carregar itens:', error);
         return;
     }
 
+    // Código que renderiza os itens na tela...
     renderMenuItems(data);
 }
     
