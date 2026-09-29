@@ -221,9 +221,9 @@
                     <h3 class="text-lg font-bold text-gray-800"><i class="fa-solid fa-box text-red-700 mr-2"></i>Tamanhos de Recipientes</h3>
                     <div class="border p-3 rounded-lg space-y-2 bg-gray-50">
                         <p class="text-xs font-bold text-gray-600 uppercase">Novo Tamanho de Marmita</p>
-                        <input type="text" id="new-size-name" placeholder="Ex: Média (500ml)" class="w-full border p-2 rounded-lg text-sm">
+                        <input type="text" id="new-size-name" placeholder="Ex: Média (500g)" class="w-full border p-2 rounded-lg text-sm">
                         <div class="flex gap-2">
-                            <input type="number" id="new-size-ml" placeholder="Capacidade (ml)" class="w-1/2 border p-2 rounded-lg text-sm">
+                            <input type="number" id="new-size-ml" placeholder="Capacidade (g)" class="w-1/2 border p-2 rounded-lg text-sm">
                             <input type="number" id="new-size-price" placeholder="Preço (R$)" class="w-1/2 border p-2 rounded-lg text-sm">
                         </div>
                         <button onclick="addNewMarmitaSize()" class="w-full bg-green-600 text-white text-sm font-bold py-2 rounded-lg">Cadastrar Tamanho</button>
@@ -421,23 +421,23 @@
             }
         }
 
-     function updateTrackingUI(status) {
-    const trackingCard = document.getElementById('tracking-card');
-    if (!trackingCard) return;
+         function updateTrackingUI(status) {
+            const trackingCard = document.getElementById('tracking-card');
+            if (!trackingCard) return;
 
-    // 1. Se o pedido foi entregue, remove da memória e esconde a mensagem
-    if (status === 'Entregue') {
-        localStorage.removeItem('activeOrderId');
-        trackingCard.classList.add('hidden');
+        // 1. Se o pedido foi entregue, remove da memória e esconde a mensagem
+            if (status === 'Entregue') {
+            localStorage.removeItem('activeOrderId');
+            trackingCard.classList.add('hidden');
         return;
     }
 
-    // 2. Se não foi entregue, exibe o cartão e atualiza o estado na tela
-    trackingCard.classList.remove('hidden');
+            // 2. Se não foi entregue, exibe o cartão e atualiza o estado na tela
+        trackingCard.classList.remove('hidden');
 
     // Atualize o texto e visual conforme o estado recebido
-    const statusText = document.getElementById('tracking-status-text'); // ajuste o ID se necessário
-    if (statusText) statusText.innerText = status;
+            const statusText = document.getElementById('tracking-status-text'); // ajuste o ID se necessário
+            if (statusText) statusText.innerText = status;
 }
         
 
@@ -497,7 +497,7 @@
 
             orders?.forEach(order => {
                 const itemsStr = `
-                    <b>Marmita:</b> ${order.items.marmita_size}<br>
+                <b>Marmita:</b> ${order.items.marmita_size}<br>
                     <b>Itens:</b> ${order.items.marmita_items?.join(', ')}<br>
                     <b>Extras:</b> ${order.items.extras?.map(e => `${e.qty}x${e.name}`).join(', ')}
                 `;
