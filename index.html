@@ -456,8 +456,16 @@
                 info.innerText = 'Pedido entregue. Bom apetite!';
                 progress.style.width = '100%';
             }
+            (order.status === 'Entregue') {
+        localStorage.removeItem('activeOrderId');
+        trackingCard.classList.add('hidden');
+        return;
         }
 
+        // Se o pedido ainda estiver em andamento, mostra o cartão e atualiza o estado
+        trackingCard.classList.remove('hidden');
+        }
+        
         function handleLogin(e) {
     e.preventDefault();
     const password = document.getElementById('admin-password').value;
