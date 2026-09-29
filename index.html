@@ -421,30 +421,24 @@
             }
         }
 
-        async function trackOrder(orderId) {
-            const trackingCard = document.getElementById('tracking-card');
-            trackingCard.classList.remove('hidden');
+     function updateTrackingUI(status) {
+    const trackingCard = document.getElementById('tracking-card');
+    if (!trackingCard) return;
 
-            supabaseClient
-                .channel(`public:orders:id=eq.${orderId}`)
-                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders', filter: `id=eq.${orderId}` }, payload => {
-                    updateTrackingUI(payload.new.status);
-                })
-                .subscribe();
-
-            const { data } = await supabaseClient.from('orders').select('status').eq('id', orderId).single();
-            if (data) updateTrackingUI(data.status);
-
-        // Se o pedido foi entregue, remove da memória e oculta o cartão
-            if (order.status === 'Entregue') {
+    // 1. Se o pedido foi entregue, remove da memória e esconde a mensagem
+    if (status === 'Entregue') {
         localStorage.removeItem('activeOrderId');
         trackingCard.classList.add('hidden');
         return;
     }
 
-        // Caso contrário, mostra o cartão e atualiza as informações
-        trackingCard.classList.remove('hidden');
-        }
+    // 2. Se não foi entregue, exibe o cartão e atualiza o estado na tela
+    trackingCard.classList.remove('hidden');
+
+    // Atualize o texto e visual conforme o estado recebido
+    const statusText = document.getElementById('tracking-status-text'); // ajuste o ID se necessário
+    if (statusText) statusText.innerText = status;
+}
         
 
         function updateTrackingUI(status) {
